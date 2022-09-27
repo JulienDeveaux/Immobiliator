@@ -11,6 +11,7 @@ const auth = require("./middleware/auth")
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
+const announcesRouter = require('./routes/announces');
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.all('*', auth.ensureAuthenticated);
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/announces', announcesRouter);
 
 // passport config
 const Account = require('./models/account');
