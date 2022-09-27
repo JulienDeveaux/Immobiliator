@@ -4,7 +4,8 @@ const passportLocalMongoose = require('passport-local-mongoose');
 
 const Account = new Schema({
     username: String,
-    password: String
+    password: String,
+    type: Boolean   // true utilisateur, false agent immobilier
 });
 
 Account.plugin(passportLocalMongoose);
