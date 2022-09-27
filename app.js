@@ -6,6 +6,7 @@ const logger = require('morgan');
 const mongoose = require('mongoose');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+const auth = require("./middleware/auth")
 
 
 const indexRouter = require('./routes/index');
@@ -29,6 +30,7 @@ app.use(require('express-session')({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
+app.all('*', auth.ensureAuthenticated);
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
