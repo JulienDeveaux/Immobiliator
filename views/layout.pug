@@ -25,7 +25,16 @@ html
       div(class= 'collapse navbar-collapse', id= 'navbarSupportedContent')
         ul(class= 'navbar-nav mr-auto')
           li(class= 'nav-item active')
-            a(class= 'nav-link', href= '/test') test
+            a(class= 'nav-link', href= '/ping') ping
+        div(class='text-end', style="width: fill-available; width: -moz-available;")
+          if (!user)
+            div(class= 'row navbar-nav')
+              div(class='col-10 text-end nav-item px-0')
+                a(class='nav-link', href="/login") Login
+              div(class='col-2 px-0')
+                a(class='nav-link', href="/register") Register
+          else
+            div(class='nav-link w-100 active') Hello #{user.username}
 
     div(class= 'container m-0 m-md-auto p-1 p-md-2')
       block content
