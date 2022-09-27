@@ -31,6 +31,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
 app.all('*', auth.ensureAuthenticated);
+app.set('user', null)
+app.set('role', null)
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);

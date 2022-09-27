@@ -2,16 +2,9 @@ const express = require('express');
 const passport = require('passport');
 const Account = require('../models/account');
 const router = express.Router();
-let role;
 
 router.get('/', function (req, res) {
-  if(!role && req.user !== undefined)
-    role = Account.find({username: req.user}).get("type");
-  if(role) {
-    role = "Utilisateur";
-  } else {
-    role = "Agent immobilier";
-  }
+  let role = req.app.get('role')
   res.render('index', { user : req.user , role : role});
 });
 
@@ -30,6 +23,19 @@ router.post('/register', function(req, res, next) {
         if (err) {
           return next(err);
         }
+        let role = req.app.get('role');
+        if(role === null && req.user !== undefined)
+          role = Account.find({username: req.user}).get("type");
+        if(role) {
+          role = "Utilisateur";
+          req.app.set('role', role);
+        } else {
+          role = "Agent immobilier";
+          req.app.set('role', role);
+        }
+        if(req.user !== undefined) {
+          req.app.set('user', req.user.username);
+        }
         res.redirect('/');
       });
     });
@@ -42,12 +48,27 @@ router.get('/login', function(req, res) {
 });
 
 router.post('/login', passport.authenticate('local'), function(req, res) {
+  let role = req.app.get('role');
+  if(role === null && req.user !== undefined)
+    role = Account.find({username: req.user}).get("type");
+  if(role) {
+    role = "Utilisateur";
+    req.app.set('role', role);
+  } else {
+    role = "Agent immobilier";
+    req.app.set('role', role);
+  }
+  if(req.user !== undefined) {
+    req.app.set('user', req.user.username);
+  }
   res.redirect('/');
 });
 
 router.get('/logout', function(req, res) {
   req.logout();
   res.redirect('/');
+  req.app.set('role', null);
+  req.app.set('user', null);
 });
 
 router.get('/ping', function(req, res){
