@@ -4,14 +4,16 @@ This project is based on a GitLab [Project Template](https://docs.gitlab.com/ee/
 
 Improvements can be proposed in the [original project](https://gitlab.com/gitlab-org/project-templates/express).
 
-### CI/CD with Auto DevOps
+### Contributors
 
-This template is compatible with [Auto DevOps](https://docs.gitlab.com/ee/topics/autodevops/).
+| Numéro Etudiant | nom            | email                              |
+|-----------------|----------------|------------------------------------|
+| dj180840        | Julien Deveaux | julien.deveaux@etu.univ-lehavre.fr |
+| dd180642        | Dimitri Dubois | dimitri.dubois@etu.univ-lehavre.fr |
 
-If Auto DevOps is not already enabled for this project, you can [turn it on](https://docs.gitlab.com/ee/topics/autodevops/#enabling-auto-devops) in the project settings.
-
-### Developing with Gitpod
-
-This template has a fully-automated dev setup for [Gitpod](https://docs.gitlab.com/ee/integration/gitpod.html).
-
-If you open this project in Gitpod, you'll get all Node dependencies pre-installed and Express will open a web preview.
+## To start the project
+```
+$ npm install 
+$ npm start
+```
+The app should be up and running at http://localhost:3000/
