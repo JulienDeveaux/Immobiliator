@@ -1,13 +1,19 @@
 extends ../index
 
 block content
-    table
-        tr
-            th Title
-            th Availability
-            th Type
-        each announce in announces
-            tr
-                td #{announce.title}
-                td #{announce.availability.toLocaleDateString()}
-                td #{announce.type ? 'Location' : 'Vente'}
+    div(class='row')
+        div(class='col text-end')
+            // todo: Ne montre que si le type d'utilisateur est correct (annonceur?)
+            a(class='btn btn-success', href='/announces/add') Ajouter
+    div(class='row')
+        div(class='col')
+            table
+                tr
+                    th Title
+                    th Availability
+                    th Type
+                each announce in announces
+                    tr
+                        td #{announce.title}
+                        td #{announce.availability.toLocaleDateString()}
+                        td #{announce.type ? 'Location' : 'Vente'}

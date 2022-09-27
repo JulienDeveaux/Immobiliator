@@ -1,0 +1,34 @@
+extends ../layout
+
+block content
+    form(role='form', method='post')
+        div.row
+            div.col
+                h2 Creer une nouvelle annonce
+        div.row
+            div.col-6
+                label(for='title') Titre
+                input#title.form-control(type='text', name='title')
+            div.col-6
+                label(for='statusType') Status
+                select#statusType.form-select(name='statusType')
+                    option(value='0') Disponible
+                    option(value='1') Loué
+                    option(value='2') Vendu
+        div.row
+            div.col-6
+                label(for='availability') Date de disponibilité
+                input#availability.form-control(type='date', name='availability')
+            div.col-6
+                label(for='type') Type d'annonce
+                    select#type.form-select(name='type')
+                        option(value='true') Vente
+                        option(value='false') Location
+        div.row
+            div.col
+                div.form-check
+                    label.form-check-label(for='isPublish') Publié ?
+                    input#isPublish.form-check-input(type='checkbox', name='isPublish')
+        div.row
+            div.col
+                input.btn.btn-success(type='submit', value='Creer')
