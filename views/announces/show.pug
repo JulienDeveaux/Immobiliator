@@ -1,0 +1,56 @@
+extends ../layout
+
+block content
+    div.row
+        div.col
+            h2 #{announce.title}
+    div.row
+        div.col-6
+            span Publier
+            p #{announce.isPublish}
+        div.col-6
+            span Status
+            p #{announce.statusType == 0 ? "Disponible" : announce.statusType == 1 ? "Loué" : "Vendu"}
+    div.row.mb-4
+        div.col-6
+            span Date de disponibilité
+            p #{announce.availability.toLocaleDateString()}
+        div.col-6
+            span Type d'annonce
+            p #{announce.type ? "Vente" : "Location"}
+
+    div.row
+        div.col
+            p Questions:
+    div.row.mb-3
+        form(role="form", method="post")
+            div.col-9
+                textarea.form-text.form-control(name="question")
+            div.col-4
+                input.btn.btn-success.mt-1(type="submit" value="Envoyer")
+    each question in (announce.questions || [])
+        div.row.mb-2.border.border-white.rounded
+            div.col
+                div.container
+                    div.row
+                        div.col-2 #{question.username}
+                        div.col-10.mt-1 #{question.text}
+                    div.row
+                        div.col-12
+                            div.container
+                                p Réponses:
+                                each reponse in (question.answers || [])
+                                    div.row
+                                        div.col-2 #{reponse.username}
+                                        div.col-10 #{reponse.text}
+                    div.row
+                        div.col
+                            form(role="form", method="post")
+                                div.col-12 Répondre:
+                                div.col-9
+                                    textarea.form-text.form-control(name="answer")
+                                div.col-4
+                                    input.btn.btn-success.mt-1(type="submit" value="Envoyer")
+                                    input(type='hidden', name='question', value=question.text)
+
+
