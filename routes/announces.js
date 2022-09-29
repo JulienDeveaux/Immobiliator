@@ -2,6 +2,7 @@ const express = require('express');
 const passport = require('passport');
 const announces = require("../models/announce");
 const { body, validationResult } = require("express-validator");
+const {min} = require("mocha/lib/reporters");
 
 const router = express.Router();
 
@@ -44,6 +45,70 @@ router.post('/add',
     {
         res.render('announces/new', { user: req.user, announce: announce, errors: errors.array().map(e => `${e.param}: ${e.msg}`) })
     }
-})
+});
+
+router.get("/:id", async function(req, res){
+    const announce = await announces.where({title: req.params.id}).findOne();
+
+    if(announce)
+    {
+        res.render("announces/show", {announce: announce});
+    }
+    else
+    {
+        res.redirect("/announces")
+    }
+});
+
+router.post("/:id",
+    body("question").trim().isLength({min: 10}),
+    body("answer").trim().isString().isLength({min: 0}),
+    async function(req, res){
+    const announce = await announces.where({title: req.params.id}).findOne();
+
+    if(announce)
+    {
+        if(!announce.questions)
+            announce.questions = [];
+
+        /**
+         * @type {[]}
+         */
+        const questions = announce.questions;
+
+        if(req.body.answer) // is a response
+        {
+            const question = questions.find(q => q.text == req.body.question);
+
+            if(!question.answers)
+                questions.answers = [];
+
+            question.answers.push({
+                username: req.user.username,
+                text: req.body.answer
+            })
+        }
+        else // is a question
+        {
+            questions.push({
+                username: req.user.username,
+                text: req.body.question,
+                answers: []
+            });questions.push({
+            username: req.user.username,
+            text: req.body.question,
+            answers: []
+        });
+        }
+
+        announce.save();
+
+        res.redirect(`/announces/${req.params.id}`);
+    }
+    else
+    {
+        res.redirect("/announces")
+    }
+});
 
 module.exports = router;
