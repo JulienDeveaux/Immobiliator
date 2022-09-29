@@ -40,6 +40,11 @@ app.all("*", async function(req, res, next)
   if(user)
   {
     req.user = user;
+    if(user.type) {
+      app.set('role', "Utilisateur");
+    } else {
+      app.set('role', "Agent Immobilier");
+    }
   }
 
   next();
