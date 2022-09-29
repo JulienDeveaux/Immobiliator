@@ -94,11 +94,7 @@ router.post("/:id",
                 username: req.user.username,
                 text: req.body.question,
                 answers: []
-            });questions.push({
-            username: req.user.username,
-            text: req.body.question,
-            answers: []
-        });
+            });
         }
 
         announce.save();
