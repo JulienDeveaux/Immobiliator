@@ -40,19 +40,23 @@ router.get('/login', function(req, res) {
 
 router.post('/login',
     function(req, res, next) {
-      passport.authenticate('local')(req, res, async () =>
-      {
-         // auth success
+      passport.authenticate('local', {}, (r, user, message) => {
+        console.log(r, user, message);
+        if(message)
+        {
+          res.render("login", {error: message.message});
+        }
+        else
+        {
+          user.token = Uuid.v4();
 
-        const user = await Account.where({username: req.body.username}).findOne();
-        user.token = Uuid.v4();
+          res.cookie("token", user.token);
 
-        res.cookie("token", user.token);
+          user.save();
 
-        user.save();
-
-        next();
-      });
+          next();
+        }
+      })(req, res);
     },
     function(req, res) {
       res.redirect('/');
@@ -61,7 +65,7 @@ router.post('/login',
 
 router.get('/logout', function(req, res) {
   req.logout();
-  res.clearCookie("token")
+  res.clearCookie("token");
 
   res.redirect('/');
 });
