@@ -2,6 +2,7 @@ const express = require('express');
 const passport = require('passport');
 const Account = require('../models/account');
 const router = express.Router();
+const Uuid = require('uuid');
 
 
 router.get('/', function (req, res) {
@@ -13,7 +14,8 @@ router.get('/register', function(req, res) {
 });
 
 router.post('/register', function(req, res, next) {
-  Account.register(new Account({ username : req.body.username }), req.body.password, function(err, account) {
+  const token = Uuid.v4();
+  Account.register(new Account({ username : req.body.username, token: token }), req.body.password, function(err, account) {
     if (err) {
       return res.render('register', { error : err.message });
     }
@@ -23,6 +25,8 @@ router.post('/register', function(req, res, next) {
         if (err) {
           return next(err);
         }
+
+        res.cookie("token", token);
         res.redirect('/');
       });
     });
@@ -34,12 +38,31 @@ router.get('/login', function(req, res) {
   res.render('login', { user : req.user });
 });
 
-router.post('/login', passport.authenticate('local'), function(req, res) {
-  res.redirect('/');
-});
+router.post('/login',
+    function(req, res, next) {
+      passport.authenticate('local')(req, res, async () =>
+      {
+         // auth success
+
+        const user = await Account.where({username: req.body.username}).findOne();
+        user.token = Uuid.v4();
+
+        res.cookie("token", user.token);
+
+        user.save();
+
+        next();
+      });
+    },
+    function(req, res) {
+      res.redirect('/');
+    }
+);
 
 router.get('/logout', function(req, res) {
   req.logout();
+  res.clearCookie("token")
+
   res.redirect('/');
 });
 
