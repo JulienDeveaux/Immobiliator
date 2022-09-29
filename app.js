@@ -40,6 +40,7 @@ app.all("*", async function(req, res, next)
   if(user)
   {
     req.user = user;
+    app.set('user', req.user.username)
     if(user.type) {
       app.set('role', "Utilisateur");
     } else {
