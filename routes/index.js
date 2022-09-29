@@ -64,6 +64,10 @@ router.post('/login',
 );
 
 router.get('/logout', function(req, res) {
+
+  req.user.token = "";
+  req.user.save();
+
   req.logout();
   res.clearCookie("token");
 
