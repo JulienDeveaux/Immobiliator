@@ -6,29 +6,35 @@ block content
             div.col
                 h2 Creer une nouvelle annonce
         div.row
+            div.col
+                ul.text-danger
+                    if (errors.length > 0)
+                        each error in errors
+                            li #{error}
+        div.row
             div.col-6
                 label(for='title') Titre
-                input#title.form-control(type='text', name='title')
+                input#title.form-control(type='text', name='title', value=announce.title, minlength=5, required=true)
             div.col-6
                 label(for='statusType') Status
                 select#statusType.form-select(name='statusType')
-                    option(value='0') Disponible
-                    option(value='1') Loué
-                    option(value='2') Vendu
+                    option(value='0', selected=(announce.statusType == 0)) Disponible
+                    option(value='1', selected=(announce.statusType == 1)) Loué
+                    option(value='2', selected=(announce.statusType == 2)) Vendu
         div.row
             div.col-6
                 label(for='availability') Date de disponibilité
-                input#availability.form-control(type='date', name='availability')
+                input#availability.form-control(type='date', name='availability', value=announce.availability, required=true)
             div.col-6
                 label(for='type') Type d'annonce
                     select#type.form-select(name='type')
-                        option(value='true') Vente
-                        option(value='false') Location
+                        option(value='true', selected=(announce.type == 'true')) Vente
+                        option(value='false', selected=(announce.type == 'false')) Location
         div.row
             div.col
                 div.form-check
                     label.form-check-label(for='isPublish') Publié ?
-                    input#isPublish.form-check-input(type='checkbox', name='isPublish')
+                    input#isPublish.form-check-input(type='checkbox', name='isPublish', checked=announce.isPublish)
         div.row
             div.col
                 input.btn.btn-success(type='submit', value='Creer')

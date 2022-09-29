@@ -12,7 +12,7 @@ router.get('/', async function(req, res, ){
 });
 
 router.get('/add', function(req, res, ){
-    res.render('announces/new',   { user: req.user })
+    res.render('announces/new',   { user: req.user, announce: {}, errors: [] })
 });
 
 router.post('/add',
@@ -25,23 +25,24 @@ router.post('/add',
     async function (req, res) {
 
     const errors = validationResult(req);
+    const announce = {
+        title: req.body.title,
+        statusType: req.body.statusType,
+        isPublish: req.body.isPublish === "on",
+        availability: req.body.availability,
+        type: req.body.type,
+        questions: []
+    };
 
     if(errors.isEmpty())
     {
-        const created = await announces.create({
-            title: req.body.title,
-            statusType: req.body.statusType,
-            isPublish: req.body.isPublish === "on",
-            availability: req.body.availability,
-            type: req.body.type,
-            questions: []
-        });
+        const created = await announces.create(announce);
 
         res.redirect("/announces");
     }
     else
     {
-        res.status(200).send("errors");
+        res.render('announces/new', { user: req.user, announce: announce, errors: errors.array().map(e => `${e.param}: ${e.msg}`) })
     }
 })
 
