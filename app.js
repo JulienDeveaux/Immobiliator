@@ -5,12 +5,14 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
 const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
 const auth = require("./middleware/auth")
+const LocalStrategy = require('passport-local').Strategy;
+const Uuid = require('uuid');
 
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
+const announcesRouter = require('./routes/announces');
 
 const app = express();
 
@@ -30,12 +32,26 @@ app.use(require('express-session')({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.all("*", async function(req, res, next)
+{
+  const user = await Account.where({token: req.cookies.token}).findOne()
+
+  if(user)
+  {
+    req.user = user;
+  }
+
+  next();
+});
+
 app.all('*', auth.ensureAuthenticated);
 app.set('user', null)
 app.set('role', null)
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/announces', announcesRouter);
 
 // passport config
 const Account = require('./models/account');
