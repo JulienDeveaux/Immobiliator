@@ -22,12 +22,13 @@ block content
     div.row
         div.col
             p Questions:
-    div.row.mb-3
-        form(role="form", method="post")
-            div.col-9
-                textarea.form-text.form-control(name="question")
-            div.col-4
-                input.btn.btn-success.mt-1(type="submit" value="Envoyer")
+    if (role === "Utilisateur")
+        div.row.mb-3
+            form(role="form", method="post")
+                div.col-9
+                    textarea.form-text.form-control(name="question")
+                div.col-4
+                    input.btn.btn-success.mt-1(type="submit" value="Envoyer")
     each question in (announce.questions || [])
         div.row.mb-2.border.border-white.rounded
             div.col
@@ -43,14 +44,13 @@ block content
                                     div.row
                                         div.col-2 #{reponse.username}
                                         div.col-10 #{reponse.text}
-                    div.row
-                        div.col
-                            form(role="form", method="post")
-                                div.col-12 Répondre:
-                                div.col-9
-                                    textarea.form-text.form-control(name="answer")
-                                div.col-4
-                                    input.btn.btn-success.mt-1(type="submit" value="Envoyer")
-                                    input(type='hidden', name='question', value=question.text)
-
-
+                    if (role === "Agent Immobilier")
+                        div.row
+                            div.col
+                                form(role="form", method="post")
+                                    div.col-12 Répondre:
+                                    div.col-9
+                                        textarea.form-text.form-control(name="answer")
+                                    div.col-4
+                                        input.btn.btn-success.mt-1(type="submit" value="Envoyer")
+                                        input(type='hidden', name='question', value=question.text)

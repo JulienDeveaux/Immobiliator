@@ -9,11 +9,14 @@ const router = express.Router();
 router.get('/', async function(req, res, ){
     const announcesList = await announces.where({statusType: 0, isPublish: true}).find()
 
-    res.render('announces/index',   { user: req.user, announces: announcesList })
+    res.render('announces/index',   { user: req.user, announces: announcesList, role : req.app.get('role')})
 });
 
 router.get('/add', function(req, res, ){
-    res.render('announces/new',   { user: req.user, announce: {}, errors: [] })
+    if(req.app.get('role') === "Agent Immobilier")
+        res.render('announces/new',   { user: req.user, announce: {}, errors: [] })
+    else
+        res.redirect('/');
 });
 
 router.post('/add',
@@ -52,7 +55,7 @@ router.get("/:id", async function(req, res){
 
     if(announce)
     {
-        res.render("announces/show", {announce: announce});
+        res.render("announces/show", {announce: announce, role: req.app.get('role')});
     }
     else
     {
@@ -76,7 +79,7 @@ router.post("/:id",
          */
         const questions = announce.questions;
 
-        if(req.body.answer) // is a response
+        if(req.body.answer && req.app.get('role') === "Agent Immobilier") // is a response
         {
             const question = questions.find(q => q.text == req.body.question);
 
@@ -88,7 +91,7 @@ router.post("/:id",
                 text: req.body.answer
             })
         }
-        else // is a question
+        else if(req.body.question && req.app.get('role') === "Utilisateur") // is a question
         {
             questions.push({
                 username: req.user.username,

@@ -1,10 +1,10 @@
 extends ../index
 
 block content
-    div.row.mb-2
-        div.col.text-end
-            // todo: Ne montre que si le type d'utilisateur est correct (annonceur?)
-            a(class='btn btn-success', href='/announces/add') Ajouter
+    if(role === "Agent Immobilier")
+        div.row.mb-2
+            div.col.text-end
+                a(class='btn btn-success', href='/announces/add') Ajouter
     div.row
         div.col
             table.table.table-dark.table-bordered.table-striped.table-hover
