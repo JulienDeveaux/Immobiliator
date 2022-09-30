@@ -68,34 +68,45 @@ router.get('/logout', function(req, res) {
   req.user.token = "";
   req.user.save();
 
-  req.logout();
-  res.clearCookie("token");
+  req.logout(() =>
+  {
+    res.clearCookie("token");
 
-  res.redirect('/');
+    res.redirect('/');
+  });
 });
 
 router.get('/modifyUser', function(req, res) {
-  res.render('modifyUser', {username : req.user.username, role : req.user.type})
+  res.render('modifyUser', {username : req.user.username, role : req.user.type, user: req.user})
 })
 
-router.post('/modifyUser', function(req, res) {
-  Account.find({username : req.user.username}).remove().exec();
-  Account.register(new Account({ username : req.body.username , type : (req.body.type === 'true')}), req.body.password, function(err, account) {
-    if (err) {
-      return res.render('modifyUser', { error : err.message });
-    }
+router.post('/modifyUser', async function(req, res) {
+  Account.findOne({username : req.user.username}, (err, account) =>
+  {
+    if(req.body.username && req.body.username.length > 1 && req.body.username !== account.username)
+      account.username = req.body.username;
 
-    passport.authenticate('local')(req, res, function () {
-      req.session.save(function (err) {
-        if (err) {
-          return next(err);
-        }
+    account.changePassword(req.body.oldPassword, req.body.password, function(err)
+    {
+      if(err)
+      {
+        return res.render('modifyUser', {user: req.user, error : err.message });
+      }
 
-        res.redirect('/');
+      passport.authenticate('local')(req, res, function () {
+        req.session.save(function (err) {
+          if (err) {
+            return res.render('modifyUser', {user: req.user, error : err.message });
+          }
+
+          res.render('modifyUser', { user: req.user, success: true });
+        });
       });
     });
   });
-})
+
+
+});
 
 router.get('/ping', function(req, res){
     res.status(200).send("pong!");
