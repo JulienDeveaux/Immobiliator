@@ -35,25 +35,27 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.all("*", async function(req, res, next)
 {
-  const user = await Account.where({token: req.cookies.token}).findOne()
-
-  if(user)
+  try
   {
-    req.user = user;
-    app.set('user', req.user.username)
-    if(user.type) {
-      app.set('role', "Utilisateur");
-    } else {
-      app.set('role', "Agent Immobilier");
+    if(req.cookies.token && Uuid.parse(req.cookies.token))
+    {
+      const user = await Account.where({token: req.cookies.token}).findOne()
+
+      if(user)
+      {
+        req.user = user;
+      }
     }
+  }
+  catch (e)
+  {
+
   }
 
   next();
 });
 
 app.all('*', auth.ensureAuthenticated);
-app.set('user', null)
-app.set('role', null)
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
@@ -66,7 +68,7 @@ passport.serializeUser(Account.serializeUser());
 passport.deserializeUser(Account.deserializeUser());
 
 // mongoose
-mongoose.connect('mongodb://localhost:27017/accounts');
+mongoose.connect('mongodb://localhost:27017/immobiliator');
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

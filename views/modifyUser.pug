@@ -3,9 +3,9 @@ extends layout
 block content
     form(method='POST')
         legend Modify User
-        .form-group
+        div.form-group.mb-1
             label(for='username') UserName
-            input.form-control(type='text', name='username', autofocus)
+            input#username.form-control(type='text', name='username', autofocus)
         .form-group
             input.form-control(type='password', name="password", placeholder='Password')
         button.btn.btn-primary(type='submit') Submit

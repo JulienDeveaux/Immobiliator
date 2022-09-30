@@ -2,18 +2,17 @@ const express = require('express');
 const passport = require('passport');
 const announces = require("../models/announce");
 const { body, validationResult } = require("express-validator");
-const {min} = require("mocha/lib/reporters");
 
 const router = express.Router();
 
 router.get('/', async function(req, res, ){
     const announcesList = await announces.where({statusType: 0, isPublish: true}).find()
 
-    res.render('announces/index',   { user: req.user, announces: announcesList, role : req.app.get('role')})
+    res.render('announces/index',   { user: req.user, announces: announcesList})
 });
 
 router.get('/add', function(req, res, ){
-    if(req.app.get('role') === "Agent Immobilier")
+    if(!req.user.type)
         res.render('announces/new',   { user: req.user, announce: {}, errors: [] })
     else
         res.redirect('/');
@@ -55,7 +54,7 @@ router.get("/:id", async function(req, res){
 
     if(announce)
     {
-        res.render("announces/show", {announce: announce, role: req.app.get('role')});
+        res.render("announces/show", {announce: announce, user: req.user});
     }
     else
     {
@@ -79,7 +78,7 @@ router.post("/:id",
          */
         const questions = announce.questions;
 
-        if(req.body.answer && req.app.get('role') === "Agent Immobilier") // is a response
+        if(req.body.answer && !req.user.type) // is a response
         {
             const question = questions.find(q => q.text == req.body.question);
 
@@ -91,7 +90,7 @@ router.post("/:id",
                 text: req.body.answer
             })
         }
-        else if(req.body.question && req.app.get('role') === "Utilisateur") // is a question
+        else if(req.body.question && req.user.type) // is a question
         {
             questions.push({
                 username: req.user.username,

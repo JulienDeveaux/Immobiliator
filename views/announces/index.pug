@@ -1,7 +1,7 @@
 extends ../index
 
 block content
-    if(role === "Agent Immobilier")
+    if(!user.type)
         div.row.mb-2
             div.col.text-end
                 a(class='btn btn-success', href='/announces/add') Ajouter

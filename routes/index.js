@@ -6,7 +6,7 @@ const Uuid = require('uuid');
 
 
 router.get('/', function (req, res) {
-  res.render('index', { user : req.user , role : req.app.get('role')});
+  res.render('index', { user : req.user });
 });
 
 router.get('/register', function(req, res) {
@@ -25,19 +25,7 @@ router.post('/register', function(req, res, next) {
         if (err) {
           return next(err);
         }
-        let role = req.app.get('role');
-        if(role === null && req.user !== undefined)
-          role = Account.find({username: req.user}).get("type");
-        if(role) {
-          role = "Utilisateur";
-          req.app.set('role', role);
-        } else {
-          role = "Agent immobilier";
-          req.app.set('role', role);
-        }
-        if(req.user !== undefined) {
-          req.app.set('user', req.user.username);
-        }
+
         res.cookie("token", token);
         res.redirect('/');
       });
@@ -53,7 +41,7 @@ router.get('/login', function(req, res) {
 router.post('/login',
     function(req, res, next) {
       passport.authenticate('local', {}, (r, user, message) => {
-        console.log(r, user, message);
+
         if(message)
         {
           res.render("login", {error: message.message});
@@ -71,19 +59,7 @@ router.post('/login',
       })(req, res);
     },
     function(req, res) {
-      let role = req.app.get('role');
-      if(role === null && req.user !== undefined)
-        role = Account.find({username: req.user}).get("type");
-      if(role) {
-        role = "Utilisateur";
-        req.app.set('role', role);
-      } else {
-        role = "Agent immobilier";
-        req.app.set('role', role);
-      }
-      if(req.user !== undefined) {
-        req.app.set('user', req.user.username);
-      }
+
       res.redirect('/');
     }
 );
@@ -91,8 +67,6 @@ router.post('/login',
 router.get('/logout', function(req, res) {
   req.user.token = "";
   req.user.save();
-  req.app.set('role', null);
-  req.app.set('user', null);
 
   req.logout();
   res.clearCookie("token");
@@ -101,11 +75,11 @@ router.get('/logout', function(req, res) {
 });
 
 router.get('/modifyUser', function(req, res) {
-  res.render('modifyUser', {username : req.app.get("user"), role : req.app.get("role")})
+  res.render('modifyUser', {username : req.user.username, role : req.user.type})
 })
 
 router.post('/modifyUser', function(req, res) {
-  Account.find({username : req.app.get('user')}).remove().exec();
+  Account.find({username : req.user.username}).remove().exec();
   Account.register(new Account({ username : req.body.username , type : (req.body.type === 'true')}), req.body.password, function(err, account) {
     if (err) {
       return res.render('modifyUser', { error : err.message });
@@ -116,19 +90,7 @@ router.post('/modifyUser', function(req, res) {
         if (err) {
           return next(err);
         }
-        let role = req.app.get('role');
-        if(role === null && req.user !== undefined)
-          role = Account.find({username: req.user}).get("type");
-        if(role) {
-          role = "Utilisateur";
-          req.app.set('role', role);
-        } else {
-          role = "Agent immobilier";
-          req.app.set('role', role);
-        }
-        if(req.user !== undefined) {
-          req.app.set('user', req.user.username);
-        }
+
         res.redirect('/');
       });
     });

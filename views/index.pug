@@ -6,5 +6,5 @@ block content
     br
     a(href="/register") Register
   if (user)
-    p You are currently logged in as #{user.username} as the role #{role}
+    p You are currently logged in as #{user.username} as the role #{user.type ? "Utilisateur" : "Agent Immobilier"}
     a(href="/logout") Logout

@@ -22,7 +22,7 @@ block content
     div.row
         div.col
             p Questions:
-    if (role === "Utilisateur")
+    if (user.type)
         div.row.mb-3
             form(role="form", method="post")
                 div.col-9
@@ -44,7 +44,7 @@ block content
                                     div.row
                                         div.col-2 #{reponse.username}
                                         div.col-10 #{reponse.text}
-                    if (role === "Agent Immobilier")
+                    if (!user.type)
                         div.row
                             div.col
                                 form(role="form", method="post")
