@@ -86,23 +86,38 @@ router.post('/modifyUser', async function(req, res) {
     if(req.body.username && req.body.username.length > 1 && req.body.username !== account.username)
       account.username = req.body.username;
 
-    account.changePassword(req.body.oldPassword, req.body.password, function(err)
+    if(req.user.type.toString() !== req.body.type)
+      account.type = req.body.type;
+
+    if(req.body.password && req.body.oldPassword)
     {
-      if(err)
+      account.changePassword(req.body.oldPassword, req.body.password, function(err)
       {
-        return res.render('modifyUser', {user: req.user, error : err.message });
-      }
+        if(err)
+        {
+          return res.render('modifyUser', {user: req.user, error : err.message });
+        }
 
-      passport.authenticate('local')(req, res, function () {
-        req.session.save(function (err) {
-          if (err) {
-            return res.render('modifyUser', {user: req.user, error : err.message });
-          }
+        passport.authenticate('local')(req, res, function ()
+        {
+          req.session.save(function (err)
+          {
+            if (err)
+            {
+              return res.render('modifyUser', {user: req.user, error : err.message });
+            }
 
-          res.render('modifyUser', { user: req.user, success: true });
+            res.render('modifyUser', { user: account, success: true });
+          });
         });
       });
-    });
+    }
+    else
+    {
+      account.save();
+
+      res.render('modifyUser', { user: account, success: true });
+    }
   });
 
 

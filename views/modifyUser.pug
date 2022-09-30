@@ -3,11 +3,18 @@ extends layout
 block content
     if (error)
         p.text-danger #{error}
+
+    if (success)
+        p.text-success Enregistrement effectué
     form(method='POST')
         legend Modify User
-        div.form-group.mb-1
+        .form-group.mb-1
             label(for='username') UserName
             input#username.form-control(type='text', name='username', autofocus, value=user.username)
+        .form-group
+            select.form-select(name='type')
+                option(value='true', selected=(user.type)) Utilisateur
+                option(value='false', selected=(!user.type)) Agent immobilier
         .form-group
             input.form-control(type='password', name="oldPassword", placeholder='Old Password')
             input.form-control(type='password', name="password", placeholder='Password')
