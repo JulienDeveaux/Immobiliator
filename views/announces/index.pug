@@ -8,12 +8,30 @@ block content
     div.row
         div.col
             table.table.table-dark.table-bordered.table-striped.table-hover
-                tr
+                if(user.type)
+                    tr
                     th Title
                     th Availability
                     th Type
-                each announce in announces
-                    tr(style="cursor: pointer;", onclick=`window.location = '/announces/${announce.title}'`)
-                        td #{announce.title}
-                        td #{announce.availability.toLocaleDateString()}
-                        td #{announce.type ? 'Vente' : 'Location'}
+                    th Status
+                    each announce in announces
+                        tr(style="cursor: pointer;", onclick=`window.location = '/announces/${announce.title}'`)
+                            td #{announce.title}
+                            td #{announce.availability.toLocaleDateString()}
+                            td #{announce.type ? 'Vente' : 'Location'}
+                            td #{announce.statusType == 0 ? 'Disponible' : announce.statusType == 1 ? 'Loué' : 'Vendu'}
+                else
+                    tr
+                        th Title
+                        th Availability
+                        th Type
+                        th Status
+                        th Actions
+                        each announce in announces
+                            tr(style="cursor: pointer;", onclick=`window.location = '/announces/${announce.title}'`)
+                                td #{announce.title}
+                                td #{announce.availability.toLocaleDateString()}
+                                td #{announce.type ? 'Vente' : 'Location'}
+                                td #{announce.statusType == 0 ? 'Disponible' : announce.statusType == 1 ? 'Loué' : 'Vendu'}
+                                td
+                                    a(class='btn btn-danger', href=`/announces/deleteConfirm/${announce.title}`) Supprimer

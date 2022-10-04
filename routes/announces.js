@@ -77,7 +77,7 @@ router.get("/:id", async function(req, res){
 
     let imageIdsUrl = [];
     for(let i = 0; i < announce.images.length; i++) {
-        imageIdsUrl.push('/announces/' + req.params.id + '/' + announce.images[i].id);
+        imageIdsUrl.push('/announces/image/' + req.params.id + '/' + announce.images[i].id);
     }
 
     if(announce)
@@ -90,7 +90,7 @@ router.get("/:id", async function(req, res){
     }
 });
 
-router.get('/:annonceId/:imageId', async function(req, res, next)
+router.get('image/:annonceId/:imageId', async function(req, res, next)
 {
     const announce = await announces.where({title: req.params.annonceId}).findOne();
     let buffer = "";
@@ -153,6 +153,26 @@ router.post("/:id",
     {
         res.redirect("/announces")
     }
+});
+
+router.get("/deleteConfirm/:id", async function(req, res){
+    const announce = await announces.where({title: req.params.id}).findOne();
+
+    if(announce && !req.type) {
+        res.render("announces/deleteConfirm", {announce: announce, user: req.user});
+    }
+    else {
+        res.redirect("/announces");
+    }
+});
+
+router.post("/delete/:id", async function(req, res){
+    const announce = await announces.where({title: req.params.id}).findOne();
+
+    if(announce && !req.type) {
+        announce.deleteOne();
+    }
+    res.redirect("/announces");
 });
 
 module.exports = router;
