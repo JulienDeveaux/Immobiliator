@@ -2,6 +2,12 @@ const express = require('express');
 const passport = require('passport');
 const announces = require("../models/announce");
 const { body, validationResult } = require("express-validator");
+const fileupload = require("express-fileupload");
+
+let magicNumber = {
+    jpg: 'ffd8ffe0',
+    png: '89504e47'
+}
 
 const router = express.Router();
 
@@ -28,12 +34,27 @@ router.post('/add',
     async function (req, res) {
 
     const errors = validationResult(req);
+
+    let images = [];         // array containing base64 version of the image files
+    for (let it = 0; it < req.files.fileUpload.length; it++) {
+        let bitmap = req.files.fileUpload[it].data;
+        if(bitmap.toString('hex',0,4) ==  magicNumber.png ||
+            bitmap.toString('hex',0,4) == magicNumber.jpg ) {
+            //encoding to base64
+            let base64Image = new Buffer(bitmap).toString('base64');
+            images.push({data: base64Image});
+        } else {
+            errors.errors.push({msg: "Invalid Image (" + req.files.fileUpload[it].name + ")", param: "Image"});
+        }
+    }
+
     const announce = {
         title: req.body.title,
         statusType: req.body.statusType,
         isPublish: req.body.isPublish === "on",
         availability: req.body.availability,
         type: req.body.type,
+        images: images,
         questions: []
     };
 
@@ -52,14 +73,37 @@ router.post('/add',
 router.get("/:id", async function(req, res){
     const announce = await announces.where({title: req.params.id}).findOne();
 
+    let imageIdsUrl = [];
+    for(let i = 0; i < announce.images.length; i++) {
+        imageIdsUrl.push('/announces/' + req.params.id + '/' + announce.images[i].id);
+    }
+
     if(announce)
     {
-        res.render("announces/show", {announce: announce, user: req.user});
+        res.render("announces/show", {announce: announce, user: req.user, imageIdsUrl : imageIdsUrl});
     }
     else
     {
         res.redirect("/announces")
     }
+});
+
+router.get('/:annonceId/:imageId', async function(req, res, next)
+{
+    const announce = await announces.where({title: req.params.annonceId}).findOne();
+    let buffer = "";
+    for(let i = 0; i < announce.images.length; i++) {
+        if(announce.images[i].id == req.params.imageId) {
+            buffer = Buffer.from(announce.images[i].data, "base64");
+        }
+    }
+
+    if(buffer.toString('hex',0,4) ==  magicNumber.png) {
+        res.contentType('image/png');
+    } else if(buffer.toString('hex',0,4) == magicNumber.jpg ) {
+        res.contentType('image/jpg');
+    }
+    res.send(buffer);
 });
 
 router.post("/:id",

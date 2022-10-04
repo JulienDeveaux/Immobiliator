@@ -1,7 +1,7 @@
 extends ../layout
 
 block content
-    form(role='form', method='post')
+    form(role='form', method='post', action="add" enctype="multipart/form-data")
         div.row
             div.col
                 h2 Creer une nouvelle annonce
@@ -35,6 +35,8 @@ block content
                 div.form-check
                     label.form-check-label(for='isPublish') Publié ?
                     input#isPublish.form-check-input(type='checkbox', name='isPublish', checked=announce.isPublish)
+        div.row
+             input(type="file", accept="image/*", multiple="true", name="fileUpload")
         div.row
             div.col
                 input.btn.btn-success(type='submit', value='Creer')
