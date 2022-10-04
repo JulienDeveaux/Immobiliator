@@ -11,9 +11,11 @@ block content
                 tr
                     th Title
                     th Availability
+                    th Price
                     th Type
                 each announce in announces
                     tr(style="cursor: pointer;", onclick=`window.location = '/announces/${announce.title}'`)
                         td #{announce.title}
                         td #{announce.availability.toLocaleDateString()}
+                        td #{announce.price || 0} €
                         td #{announce.type ? 'Vente' : 'Location'}

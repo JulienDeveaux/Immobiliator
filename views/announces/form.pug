@@ -24,7 +24,7 @@ block content
         div.row
             div.col-sm-6.col-12
                 label(for='availability') Date de disponibilité
-                input#availability.form-control(type='date', name='availability', value=announce.availability, required=true)
+                input#availability.form-control(type='date', name='availability', value=(announce.availability ? `${announce.availability.getFullYear()}-${announce.availability.getMonth().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})}-${announce.availability.getDate().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})}` : ''), required=true)
             div.col-sm-6.col-12
                 div.row
                     div.col-auto
@@ -34,7 +34,7 @@ block content
                                 option(value='false', selected=(announce.type == 'false')) Location
                     div.col-auto
                         label(for='price') Prix (€)
-                        input#price.form-control(type='number', step='0.1', name='price', placeholder='150412.3')
+                        input#price.form-control(type='number', step='0.1', name='price', placeholder='150412.3', value=announce.price)
         div.row
             div.col
                 div.form-check

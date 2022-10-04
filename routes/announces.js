@@ -13,7 +13,7 @@ router.get('/', async function(req, res, ){
 
 router.get('/add', function(req, res, ){
     if(!req.user.type)
-        res.render('announces/new',   { user: req.user, announce: {}, errors: [] })
+        res.render('announces/form',   { user: req.user, announce: {}, errors: [] })
     else
         res.redirect('/');
 });
@@ -47,7 +47,7 @@ router.post('/add',
     }
     else
     {
-        res.render('announces/new', { user: req.user, announce: announce, errors: errors.array().map(e => `${e.param}: ${e.msg}`) })
+        res.render('announces/form', { user: req.user, announce: announce, errors: errors.array().map(e => `${e.param}: ${e.msg}`) })
     }
 });
 
@@ -112,5 +112,65 @@ router.post("/:id",
         res.redirect("/announces")
     }
 });
+
+router.get('/:id/edit', async function(req, res, next)
+{
+    if(req.user.type)
+        return res.redirect(`/announces/${req.params.id}`);
+
+    const announce = await announces.where({title: req.params.id}).findOne();
+
+    if(!announce)
+        return res.redirect('/announces');
+
+    res.render('announces/form', {
+        announce: announce,
+        user: req.user,
+        errors: []
+    });
+});
+
+router.post('/:id/edit',
+    body("title").trim().isLength({min: 5}),
+    body("statusType").trim().isInt({min: 0, max: 2}),
+    body("isPublish").trim().isIn(["", "on"]),
+    body("availability").trim().isDate(),
+    body("type").trim().isBoolean(),
+    body("price").trim().isNumeric(),
+    async function(req, res, next)
+    {
+        if(req.user.type)
+            return res.redirect(`/announces/${req.params.id}`);
+
+        const announce = await announces.where({title: req.params.id}).findOne();
+
+        if(!announce)
+            return res.redirect('/announces');
+
+        announce.title = req.body.title;
+        announce.statusType = req.body.statusType;
+        announce.isPublish = req.body.isPublish === "on";
+        announce.availability = req.body.availability;
+        announce.type = req.body.type;
+        announce.price = parseInt(req.body.price);
+
+        const errors = validationResult(req);
+
+        if(errors.isEmpty())
+        {
+            await announce.save();
+
+            res.redirect(`/announces/${req.params.id}`)
+        }
+        else
+        {
+            res.render('announces/form', {
+                announce: announce,
+                user: req.user,
+                errors: errors.array().map(e => `${e.param}: ${e.msg}`)
+            })
+        }
+    }
+);
 
 module.exports = router;
