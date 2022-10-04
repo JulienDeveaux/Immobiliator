@@ -90,7 +90,7 @@ router.get("/:id", async function(req, res){
     }
 });
 
-router.get('image/:annonceId/:imageId', async function(req, res, next)
+router.get('/image/:annonceId/:imageId', async function(req, res, next)
 {
     const announce = await announces.where({title: req.params.annonceId}).findOne();
     let buffer = "";
