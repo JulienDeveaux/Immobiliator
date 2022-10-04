@@ -12,10 +12,12 @@ const Announce = new Schema({
         {
             text: String,
             username: String,
+            date: Date,
             answers: [
                 {
                     text: String,
-                    username: String
+                    username: String,
+                    date: Date
                 }
             ]
         }

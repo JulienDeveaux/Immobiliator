@@ -34,19 +34,26 @@ block content
             div.col
                 div.container
                     div.row
-                        div.col-2 #{question.username}
+                        div.col-12.col-lg-2
+                            div.row
+                                div.col-auto.col-lg-12 de #{question.username}
+                                div.col.col-lg-12 le #{question.date ? question.date.toLocaleString() : 'xxx'}
                         div.col-10.mt-1 #{question.text}
                     div.row
                         div.col-12
-                            div.container
-                                p Réponses:
+                            div.container.mt-4
+                                h5 Réponses:
                                 each reponse in (question.answers || [])
                                     div.row
-                                        div.col-2 #{reponse.username}
+                                        div.col-12.col-lg-2
+                                            div.row
+                                                div.col-auto.col-lg-12 de #{reponse.username}
+                                                div.col.col-lg-12 le #{reponse.date ? reponse.date.toLocaleString() : 'xxx'}
+
                                         div.col-10 #{reponse.text}
                     if (!user.type)
                         div.row
-                            div.col
+                            div.col.mt-4
                                 form(role="form", method="post")
                                     div.col-12 Répondre:
                                     div.col-9

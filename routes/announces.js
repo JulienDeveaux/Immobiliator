@@ -87,7 +87,8 @@ router.post("/:id",
 
             question.answers.push({
                 username: req.user.username,
-                text: req.body.answer
+                text: req.body.answer,
+                date: new Date()
             })
         }
         else if(req.body.question && req.user.type) // is a question
@@ -95,6 +96,7 @@ router.post("/:id",
             questions.push({
                 username: req.user.username,
                 text: req.body.question,
+                date: new Date(),
                 answers: []
             });
         }
