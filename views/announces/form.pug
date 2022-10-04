@@ -42,6 +42,11 @@ block content
                     input#isPublish.form-check-input(type='checkbox', name='isPublish', checked=announce.isPublish)
         div.row
             div.col
+                label(for='description') Description
+                textarea#description.form-control(name='description') #{announce.description}
+
+        div.row
+            div.col
                 div.image-upload-wrap
                     input.file-upload-input(type="file", accept="image/*", multiple="true", name="fileUpload")
                     div.drag-text
