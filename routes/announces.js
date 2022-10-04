@@ -12,7 +12,7 @@ const magicNumber = {
 const router = express.Router();
 
 router.get('/', async function(req, res, ){
-    const announcesList = await announces.where({statusType: 0, isPublish: true}).find()
+    const announcesList = await (req.user.type ? announces.where({statusType: 0, isPublish: true}) : announces).find();
 
     res.render('announces/index',   { user: req.user, announces: announcesList})
 });
@@ -40,8 +40,8 @@ router.post('/add',
     if(req.files) {
         for (let it = 0; it < req.files.fileUpload.length; it++) {
             let bitmap = req.files.fileUpload[it].data;
-            if (bitmap.toString('hex', 0, 4) == magicNumber.png ||
-                bitmap.toString('hex', 0, 4) == magicNumber.jpg) {
+            if (bitmap.toString('hex', 0, 4) === magicNumber.png ||
+                bitmap.toString('hex', 0, 4) === magicNumber.jpg) {
                 //encoding to base64
                 let base64Image = new Buffer(bitmap).toString('base64');
                 images.push({data: base64Image});
@@ -102,9 +102,9 @@ router.get('/image/:annonceId/:imageId', async function(req, res, next)
         }
     }
 
-    if(buffer.toString('hex',0,4) ==  magicNumber.png) {
+    if(buffer.toString('hex',0,4) === magicNumber.png) {
         res.contentType('image/png');
-    } else if(buffer.toString('hex',0,4) == magicNumber.jpg ) {
+    } else if(buffer.toString('hex',0,4) === magicNumber.jpg ) {
         res.contentType('image/jpg');
     }
     res.send(buffer);
