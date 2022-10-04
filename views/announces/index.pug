@@ -13,6 +13,7 @@ block content
                     th Availability
                     th Price
                     th Type
+                    th Status
                     if (!user.type)
                         th Actions
                 each announce in announces
@@ -21,6 +22,7 @@ block content
                         td #{announce.availability.toLocaleDateString()}
                         td #{announce.price || 0} €
                         td #{announce.type ? 'Vente' : 'Location'}
+                        td #{announce.statusType == 0 ? 'Disponible' : announce.statusType == 1 ? 'Loué' : 'Vendu'}
                         if (!user.type)
                             td
                                 a.btn.btn-danger(href=`/announces/${announce.title}/deleteConfirm`) Supprimer

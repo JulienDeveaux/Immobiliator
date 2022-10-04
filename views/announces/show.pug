@@ -26,10 +26,12 @@ block content
             span Prix
             p #{announce.price || 0} €
     div.row
-        div.cardContainer
-            each path in (imageIdsUrl || [])
-                div.imageCard
-                    img.showImage(src=path)
+        each path in (imageIdsUrl || [])
+            div.col-12.col-sm-6.mt-2.mt-sm-1
+                div.cardContainer
+                    div.imageCard
+                        a(href=path, target="_blank")
+                            img.showImage(src=path)
 
 
     div.row
