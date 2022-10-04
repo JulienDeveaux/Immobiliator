@@ -26,6 +26,13 @@ block content
             span Prix
             p #{announce.price || 0} €
     div.row
+        div.cardContainer
+            each path in (imageIdsUrl || [])
+                div.imageCard
+                    img.showImage(src=path)
+
+
+    div.row
         div.col
             p Questions:
     if (user.type)
