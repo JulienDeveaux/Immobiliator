@@ -36,15 +36,17 @@ router.post('/add',
     const errors = validationResult(req);
 
     let images = [];         // array containing base64 version of the image files
-    for (let it = 0; it < req.files.fileUpload.length; it++) {
-        let bitmap = req.files.fileUpload[it].data;
-        if(bitmap.toString('hex',0,4) ==  magicNumber.png ||
-            bitmap.toString('hex',0,4) == magicNumber.jpg ) {
-            //encoding to base64
-            let base64Image = new Buffer(bitmap).toString('base64');
-            images.push({data: base64Image});
-        } else {
-            errors.errors.push({msg: "Invalid Image (" + req.files.fileUpload[it].name + ")", param: "Image"});
+    if(req.files) {
+        for (let it = 0; it < req.files.fileUpload.length; it++) {
+            let bitmap = req.files.fileUpload[it].data;
+            if (bitmap.toString('hex', 0, 4) == magicNumber.png ||
+                bitmap.toString('hex', 0, 4) == magicNumber.jpg) {
+                //encoding to base64
+                let base64Image = new Buffer(bitmap).toString('base64');
+                images.push({data: base64Image});
+            } else {
+                errors.errors.push({msg: "Invalid Image (" + req.files.fileUpload[it].name + ")", param: "Image"});
+            }
         }
     }
 
