@@ -37,6 +37,7 @@ html
                 a(class='nav-link', href="/register") S'identifier
           else
             div(class='nav-link w-100 active') Bonjour #{user.username}
+            a(href="/logout") Déconnexion
 
     div(class= 'container m-0 m-md-auto p-1 p-md-2')
       block content
