@@ -12,24 +12,29 @@ block content
                         each error in errors
                             li #{error}
         div.row
-            div.col-6
+            div.col-12.col-sm-6
                 label(for='title') Titre
                 input#title.form-control(type='text', name='title', value=announce.title, minlength=5, required=true)
-            div.col-6
+            div.col-sm-6.col-12
                 label(for='statusType') Status
                 select#statusType.form-select(name='statusType')
                     option(value='0', selected=(announce.statusType == 0)) Disponible
                     option(value='1', selected=(announce.statusType == 1)) Loué
                     option(value='2', selected=(announce.statusType == 2)) Vendu
         div.row
-            div.col-6
+            div.col-sm-6.col-12
                 label(for='availability') Date de disponibilité
                 input#availability.form-control(type='date', name='availability', value=announce.availability, required=true)
-            div.col-6
-                label(for='type') Type d'annonce
-                    select#type.form-select(name='type')
-                        option(value='true', selected=(announce.type == 'true')) Vente
-                        option(value='false', selected=(announce.type == 'false')) Location
+            div.col-sm-6.col-12
+                div.row
+                    div.col-auto
+                        label(for='type') Type d'annonce
+                            select#type.form-select(name='type')
+                                option(value='true', selected=(announce.type == 'true')) Vente
+                                option(value='false', selected=(announce.type == 'false')) Location
+                    div.col-auto
+                        label(for='price') Prix (€)
+                        input#price.form-control(type='number', step='0.1', name='price', placeholder='150412.3')
         div.row
             div.col
                 div.form-check

@@ -24,6 +24,7 @@ router.post('/add',
     body("isPublish").trim().isIn(["", "on"]),
     body("availability").trim().isDate(),
     body("type").trim().isBoolean(),
+    body("price").trim().isNumeric(),
 
     async function (req, res) {
 
@@ -34,6 +35,7 @@ router.post('/add',
         isPublish: req.body.isPublish === "on",
         availability: req.body.availability,
         type: req.body.type,
+        price: req.body.price,
         questions: []
     };
 
