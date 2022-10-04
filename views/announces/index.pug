@@ -25,4 +25,5 @@ block content
                         td #{announce.statusType == 0 ? 'Disponible' : announce.statusType == 1 ? 'Loué' : 'Vendu'}
                         if (!user.type)
                             td
-                                a.btn.btn-danger(href=`/announces/${announce.title}/deleteConfirm`) Supprimer
+                                a.btn.btn-danger.me-2(href=`/announces/${announce.title}/deleteConfirm`) Supprimer
+                                a.btn.btn-primary(href=`/announces/${announce.title}/edit`) Modifier
