@@ -70,7 +70,14 @@ passport.serializeUser(Account.serializeUser());
 passport.deserializeUser(Account.deserializeUser());
 
 // mongoose
-mongoose.connect('mongodb://localhost:27017/immobiliator');
+let db = undefined;
+
+mongoose.connect(`mongodb://localhost:27017/${app.get('env') === 'test' ? 'testImmo' : 'immobiliator'}`)
+    .then(databaseCon =>
+    {
+        db = databaseCon;
+    });
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -87,5 +94,7 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+app.disconnectDb = () => db ? db.disconnect() : undefined;
 
 module.exports = app;
