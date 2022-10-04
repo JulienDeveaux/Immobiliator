@@ -13,9 +13,14 @@ block content
                     th Availability
                     th Price
                     th Type
+                    if (!user.type)
+                        th Actions
                 each announce in announces
                     tr(style="cursor: pointer;", onclick=`window.location = '/announces/${announce.title}'`)
                         td #{announce.title}
                         td #{announce.availability.toLocaleDateString()}
                         td #{announce.price || 0} €
                         td #{announce.type ? 'Vente' : 'Location'}
+                        if (!user.type)
+                            td
+                                a.btn.btn-danger(href=`/announces/${announce.title}/deleteConfirm`) Supprimer

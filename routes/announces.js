@@ -159,10 +159,10 @@ router.post("/:id",
     }
 });
 
-router.get("/deleteConfirm/:id", async function(req, res){
+router.get("/:id/deleteConfirm", async function(req, res){
     const announce = await announces.where({title: req.params.id}).findOne();
 
-    if(announce && !req.type) {
+    if(announce && !req.user.type) {
         res.render("announces/deleteConfirm", {announce: announce, user: req.user});
     }
     else {
@@ -170,10 +170,10 @@ router.get("/deleteConfirm/:id", async function(req, res){
     }
 });
 
-router.post("/delete/:id", async function(req, res){
+router.post("/:id/delete", async function(req, res){
     const announce = await announces.where({title: req.params.id}).findOne();
 
-    if(announce && !req.type) {
+    if(announce && !req.user.type) {
         announce.deleteOne();
     }
     res.redirect("/announces");

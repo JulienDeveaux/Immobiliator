@@ -2,6 +2,6 @@ extends ../index
 
 block content
     h2 Are you sure to delete the announce #{announce.title} ?
-    form(role='form', method='post', action=`/announces/delete/${announce.title}`)
+    form(role='form', method='post', action=`/announces/${announce.title}/delete`)
         input.btn.btn-danger(type='submit', value='Delete')
         a(class='btn btn-primary', href='/announces') Cancel
