@@ -72,7 +72,7 @@ router.post('/add',
     }
 });
 
-router.get("/:id", async function(req, res){
+router.get("/show/:id", async function(req, res){
     const announce = await announces.where({title: req.params.id}).findOne();
 
     let imageIdsUrl = [];

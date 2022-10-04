@@ -15,7 +15,7 @@ block content
                     th Type
                     th Status
                     each announce in announces
-                        tr(style="cursor: pointer;", onclick=`window.location = '/announces/${announce.title}'`)
+                        tr(style="cursor: pointer;", onclick=`window.location = '/announces/show/${announce.title}'`)
                             td #{announce.title}
                             td #{announce.availability.toLocaleDateString()}
                             td #{announce.type ? 'Vente' : 'Location'}
@@ -28,7 +28,7 @@ block content
                         th Status
                         th Actions
                         each announce in announces
-                            tr(style="cursor: pointer;", onclick=`window.location = '/announces/${announce.title}'`)
+                            tr(style="cursor: pointer;", onclick=`window.location = '/announces/show/${announce.title}'`)
                                 td #{announce.title}
                                 td #{announce.availability.toLocaleDateString()}
                                 td #{announce.type ? 'Vente' : 'Location'}
