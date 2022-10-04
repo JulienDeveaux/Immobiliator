@@ -186,12 +186,18 @@ router.get('/:id/edit', async function(req, res, next)
 
     const announce = await announces.where({title: req.params.id}).findOne();
 
+    let imageIdsUrl = [];
+    for(let i = 0; i < announce.images.length; i++) {
+        imageIdsUrl.push('/announces/image/' + req.params.id + '/' + announce.images[i].id);
+    }
+
     if(!announce)
         return res.redirect('/announces');
 
     res.render('announces/form', {
         announce: announce,
         user: req.user,
+        imageIdsUrl : imageIdsUrl,
         errors: []
     });
 });
@@ -213,12 +219,28 @@ router.post('/:id/edit',
         if(!announce)
             return res.redirect('/announces');
 
+        let images = [];         // array containing base64 version of the image files
+        if(req.files) {
+            for (let it = 0; it < req.files.fileUpload.length; it++) {
+                let bitmap = req.files.fileUpload[it].data;
+                if (bitmap.toString('hex', 0, 4) === magicNumber.png ||
+                    bitmap.toString('hex', 0, 4) === magicNumber.jpg) {
+                    //encoding to base64
+                    let base64Image = new Buffer(bitmap).toString('base64');
+                    images.push({data: base64Image});
+                } else {
+                    errors.errors.push({msg: "Invalid Image (" + req.files.fileUpload[it].name + ")", param: "Image"});
+                }
+            }
+        }
+
         announce.title = req.body.title;
         announce.statusType = req.body.statusType;
         announce.isPublish = req.body.isPublish === "on";
         announce.availability = req.body.availability;
         announce.type = req.body.type;
         announce.price = parseInt(req.body.price);
+        announce.images = images;
 
         const errors = validationResult(req);
 

@@ -47,9 +47,15 @@ block content
                     div.drag-text
                         h3 Drag and Drop Images
         div.row#appendHereTheDiv
+            each path in (imageIdsUrl || [])
+                div.col-12.col-sm-6.mt-2.mt-sm-1
+                    div.cardContainer
+                        div.imageCard
+                            a(href=path, target="_blank")
+                                img.showImage(src=path)
         div.row
             div.col
-                input.btn.btn-success(type='submit', value='Creer')
+                input.btn.btn-success(type='submit', value=(announce.title ? 'Modifier' : 'Créer'))
     script.
         const dropbox = document.getElementsByClassName('image-upload-wrap')[0]
         const rowImages = document.getElementById('appendHereTheDiv')
