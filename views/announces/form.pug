@@ -41,7 +41,50 @@ block content
                     label.form-check-label(for='isPublish') Publié ?
                     input#isPublish.form-check-input(type='checkbox', name='isPublish', checked=announce.isPublish)
         div.row
-             input(type="file", accept="image/*", multiple="true", name="fileUpload")
+            div.col
+                div.image-upload-wrap
+                    input.file-upload-input(type="file", accept="image/*", multiple="true", name="fileUpload")
+                    div.drag-text
+                        h3 Drag and Drop Images
+        div.row#appendHereTheDiv
         div.row
             div.col
                 input.btn.btn-success(type='submit', value='Creer')
+    script.
+        const dropbox = document.getElementsByClassName('image-upload-wrap')[0]
+        const rowImages = document.getElementById('appendHereTheDiv')
+
+        dropbox.addEventListener('dragenter', event => {
+            event.preventDefault();
+        });
+
+        dropbox.addEventListener('dragleave', event => {
+            event.preventDefault();
+        });
+
+        dropbox.addEventListener('dragover', event => {
+            event.preventDefault();
+        });
+
+        dropbox.addEventListener('drop', async event => {
+            rowImages.replaceChildren();
+            for(let i = 0; i < event.dataTransfer.files.length; i++) {
+                const reader = new FileReader();
+                reader.addEventListener('loadend', function () {
+                    const col = document.createElement('div');
+                    col.className = "col-12 col-sm-6 mt-2 mt-sm-1";
+                    const cardContainer = document.createElement('div');
+                    cardContainer.className = "cardContainer";
+                    const imageCard = document.createElement('div');
+                    imageCard.className = "imageCard";
+                    const img = document.createElement('img');
+                    img.src = reader.result;
+                    img.className = "showImage"
+                    imageCard.append(img);
+                    cardContainer.append(imageCard);
+                    col.append(cardContainer);
+                    rowImages.append(col);
+                });
+                reader.readAsDataURL(event.dataTransfer.files[i]);
+            }
+        });
