@@ -8,6 +8,7 @@ const Announce = new Schema({
     isPublish: Boolean,
     statusType: Number, // 0 = dispo / 1 = loué / 2 = vendu
     availability: Date,
+    description: String,
     images: [
         {
             data: String

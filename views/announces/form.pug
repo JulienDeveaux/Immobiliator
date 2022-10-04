@@ -41,6 +41,11 @@ block content
                     label.form-check-label(for='isPublish') Publié ?
                     input#isPublish.form-check-input(type='checkbox', name='isPublish', checked=announce.isPublish)
         div.row
+            div.col
+                label(for='description') Description
+                textarea#description.form-control(name='description') #{announce.description}
+
+        div.row
              input(type="file", accept="image/*", multiple="true", name="fileUpload")
         div.row
             div.col

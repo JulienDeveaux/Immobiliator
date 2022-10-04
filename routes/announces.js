@@ -31,7 +31,7 @@ router.post('/add',
     body("availability").trim().isDate(),
     body("type").trim().isBoolean(),
     body("price").trim().isNumeric(),
-
+    body("description").trim().isString(),
     async function (req, res) {
 
     const errors = validationResult(req);
@@ -59,6 +59,7 @@ router.post('/add',
         type: req.body.type,
         price: req.body.price,
         images: images,
+        description: req.body.description,
         questions: []
     };
 
@@ -84,6 +85,8 @@ router.get("/:id", async function(req, res){
 
     if(announce)
     {
+        announce.description = announce.description || "";
+
         res.render("announces/show", {announce: announce, user: req.user, imageIdsUrl : imageIdsUrl});
     }
     else
@@ -203,6 +206,7 @@ router.post('/:id/edit',
     body("availability").trim().isDate(),
     body("type").trim().isBoolean(),
     body("price").trim().isNumeric(),
+    body("description").trim().isString(),
     async function(req, res, next)
     {
         if(req.user.type)
@@ -219,6 +223,7 @@ router.post('/:id/edit',
         announce.availability = req.body.availability;
         announce.type = req.body.type;
         announce.price = parseInt(req.body.price);
+        announce.description = req.body.description;
 
         const errors = validationResult(req);
 
