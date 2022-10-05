@@ -21,10 +21,17 @@ block content
         div.col-6
             span Type d'annonce
             p #{announce.type ? "Vente" : "Location"}
-    div.row.mb-4
+    div.row
         div.col-6
             span Prix
             p #{announce.price || 0} €
+    div.row.mb-4
+        div.col
+            label Description:
+            br
+            each text in announce.description.split("\n")
+                span #{text}
+                br
     div.row
         each path in (imageIdsUrl || [])
             div.col-12.col-sm-6.mt-2.mt-sm-1
