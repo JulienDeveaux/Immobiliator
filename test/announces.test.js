@@ -64,6 +64,31 @@ describe('Agent user tests', function () {
         });
     });
 
+    it('View announce', async () => {
+        await accounts.findOne({}).then(async user => {
+            let theAnnounce = await announce.findOne({});
+
+            const page = await server.get('/announces/' + theAnnounce.title).set('Cookie', `token=${user.token};`);
+            const dom = new JSDOM(page.text);
+            const container = dom.window.document.getElementsByClassName('container m-0 m-md-auto p-1 p-md-2')[0];
+            expect(container).not.toBeNull();
+            const rows = container.getElementsByClassName('row');
+            expect(rows[0].querySelector("h2").textContent).toBe("testAnnounce");
+
+            const firstRowSplit = rows[1].textContent.replace("Publier", "").split("Status");
+            expect(firstRowSplit[0]).toBe("true");
+            expect(firstRowSplit[1]).toBe("Disponible");
+
+            const secondRowSplit = rows[2].textContent.replace("Date de disponibilité", "").split("Type d'annonce");
+            expect(secondRowSplit[0]).toBe("18/11/2022");
+            expect(secondRowSplit[1]).toBe("Vente");
+
+            const thirdRow = rows[3].textContent.replace("Prix", "");
+            expect(thirdRow).toBe("100 €");
+
+        });
+    });
+
     it('Edit an announce', async () => {
         await accounts.findOne({}).then(async user => {
             const page = await server.get('/announces/testAnnounce').set('Cookie', `token=${user.token};`);
