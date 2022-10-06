@@ -4,7 +4,10 @@ block content
     form(role='form', method='post', enctype="multipart/form-data")
         div.row
             div.col
-                h2 Creer une nouvelle annonce
+                if announce.title
+                    h2 Modifier l'annonce #{announce.title}
+                else
+                    h2 Créer une nouvelle annonce
         div.row
             div.col
                 ul.text-danger
