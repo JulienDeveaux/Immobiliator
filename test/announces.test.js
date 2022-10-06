@@ -106,6 +106,62 @@ describe('Agent user tests', function () {
         });
     });
 
+    it('Bad fields in announce creation / edit page', async () => {
+        await accounts.findOne({}).then(async user => {
+            /*Creation form*/
+            const page = await server
+                .post('/announces/add')
+                .send({
+                    title: 'test',          // too short
+                    statusType: '3',        // bad status
+                    isPublish: "off",       // impossible value
+                    availability: '20-1-1', // bad date
+                    type: 3,                // should be boolean
+                    price: "one hundred",   // should be number
+                    description: 700        // should be good (anything will be converted to string)
+                })
+                .set('Cookie', `token=${user.token};`);
+            const createDom = new JSDOM(page.text);
+            let form = createDom.window.document.querySelector('form');
+            let secondRow = form.getElementsByClassName('row')[1];
+            let errorList = secondRow.querySelector('ul');
+            let errorListContent = Array.from(errorList.children).map(li => li.textContent);
+            expect(errorListContent.length).toBe(6);
+            expect(errorListContent).toContain("title: Invalid value");
+            expect(errorListContent).toContain("statusType: Invalid value");
+            expect(errorListContent).toContain("isPublish: Invalid value");
+            expect(errorListContent).toContain("availability: Invalid value");
+            expect(errorListContent).toContain("type: Invalid value");
+            expect(errorListContent).toContain("price: Invalid value");
+
+            /*Edit form*/
+            const editPage = await server
+                .post('/announces/testAnnounce/edit')
+                .send({
+                    title: 'test',          // too short
+                    statusType: '3',        // bad status
+                    isPublish: "off",       // impossible value
+                    availability: '20-1-1', // bad date
+                    type: 3,                // should be boolean
+                    price: "one hundred",   // should be number
+                    description: 700        // should be good (anything will be converted to string)
+                })
+                .set('Cookie', `token=${user.token};`);
+            const editDom = new JSDOM(editPage.text);
+            form = editDom.window.document.querySelector('form');
+            secondRow = form.getElementsByClassName('row')[1];
+            errorList = secondRow.querySelector('ul');
+            errorListContent = Array.from(errorList.children).map(li => li.textContent);
+            expect(errorListContent.length).toBe(6);
+            expect(errorListContent).toContain("title: Invalid value");
+            expect(errorListContent).toContain("statusType: Invalid value");
+            expect(errorListContent).toContain("isPublish: Invalid value");
+            expect(errorListContent).toContain("availability: Invalid value");
+            expect(errorListContent).toContain("type: Invalid value");
+            expect(errorListContent).toContain("price: Invalid value");
+        });
+    });
+
     it('Delete an announce', async () => {
         await accounts.findOne({}).then(async user => {
             let theAnnounce = await announce.findOne({});
