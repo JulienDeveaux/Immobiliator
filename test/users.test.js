@@ -7,7 +7,7 @@ beforeAll(async () => await accounts.deleteMany({}));
 
 afterAll(() => app.disconnectDb());
 
-describe('App', function() {
+describe('Users tests', function() {
   const server = request(app);
 
   it('has title in index page (layout test)', (done) =>
@@ -43,5 +43,26 @@ describe('App', function() {
           .set('Cookie', `token=${user.token};`)
           .expect(/Bonjour test/, done);
     });
+  });
+
+  it('modify user info (excluding password)', async () =>
+  {
+    const account = await accounts.findOne({});
+
+    await server.post('/modifyUser')
+        .set('Cookie', `token=${account.token};`)
+        .send({
+          username: 'testModify',
+          type: false
+        }).expect(/Enregistrement effectué/);
+
+    const modifiedAccount = await accounts.findOne({});
+
+    expect(account.username === modifiedAccount.username).toBe(false);
+  });
+
+  it('access to unauthorized route when not connected', (done) =>
+  {
+    server.get('/logout').expect(302).expect('Location', '/').end(done);
   });
 }); 
