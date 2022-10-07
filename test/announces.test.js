@@ -223,3 +223,75 @@ describe('Agent user tests', function () {
         });
     });
 });
+
+describe('Classic user tests', function () { //TODO check security of routes
+    const server = request(app);
+
+    it('Create an announce rejection', async () => {
+        await accounts.findOne({'username': 'classicUser'}).then(async user => {
+            await server
+                .post('/announces/add')
+                .send({
+                    title: 'testAnnounce',
+                    statusType: '0', //available
+                    isPublish: "on",
+                    availability: '2022-11-18',
+                    type: true, //sell
+                    price: 100,
+                    description: 'test description for a test announce'
+                })
+                .set('Cookie', `token=${user.token};`)
+                .expect("Location", "/announces");//TODO : add images
+            let annnouce = await announce.findOne({'title': 'testAnnounce'});
+            expect(annnouce).toBeNull();
+        });
+    });
+
+    it('Edit an announce rejection', async () => {
+        await accounts.findOne({'username': 'classicUser'}).then(async user => {
+            await server
+                .post('/announces/testAnnounce/edit')
+                .send({
+                    title: 'testAnnounce',
+                    statusType: '0', //available
+                    isPublish: "on",
+                    availability: '2022-11-18',
+                    type: true, //sell
+                    price: 100,
+                    description: 'test description for a test announce'
+                })
+                .set('Cookie', `token=${user.token};`)
+                .expect("Location", "/announces/testAnnounce");
+            let annnouce = await announce.findOne({'title': 'testAnnounce'});
+            expect(annnouce).toBeNull();
+        });
+    });
+
+    it('Create an announce with agent role for the next tests', async () => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
+            await server
+                .post('/announces/add')
+                .send({
+                    title: 'testAnnounce',
+                    statusType: '0', //available
+                    isPublish: "on",
+                    availability: '2022-11-18',
+                    type: true, //sell
+                    price: 100,
+                    description: 'test description for a test announce'
+                })
+                .set('Cookie', `token=${user.token};`);
+        });
+    });
+
+    it('Delete an announce rejection', async () => {
+        await accounts.findOne({'username': 'classicUser'}).then(async user => {
+            await server
+                .post('/announces/testAnnounce/delete')
+                .set('Cookie', `token=${user.token};`)
+                .expect("Location", "/announces");
+            let annnouce = await announce.findOne({'title': 'testAnnounce'});
+            expect(annnouce).toBeDefined();
+        });
+    });
+});
