@@ -11,6 +11,11 @@ beforeAll(async () => {
     await announce.deleteMany({});
     await accounts.deleteMany({});
     await server.post('/users/register').send({
+        username: 'user',
+        type: true,
+        password: 'test'
+    });
+    await server.post('/users/register').send({
         username: 'agent',
         type: false,
         password: 'test'
@@ -23,7 +28,7 @@ describe('Agent user tests', function () {
     const server = request(app);
 
     it('Create an announce', async () => {
-        await accounts.findOne({}).then(async user => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
             await server
                 .post('/announces/add')
                 .send({
@@ -50,7 +55,7 @@ describe('Agent user tests', function () {
     });
 
     it('Show all announces', async () => {
-        await accounts.findOne({}).then(async user => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
             const page = await server.get('/announces').set('Cookie', `token=${user.token};`);
             const dom = new JSDOM(page.text);
             const table = dom.window.document.querySelector('table');
@@ -65,7 +70,7 @@ describe('Agent user tests', function () {
     });
 
     it('View announce', async () => {
-        await accounts.findOne({}).then(async user => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
             let theAnnounce = await announce.findOne({});
 
             const page = await server.get('/announces/' + theAnnounce.title).set('Cookie', `token=${user.token};`);
@@ -90,7 +95,7 @@ describe('Agent user tests', function () {
     });
 
     it('Edit an announce', async () => {
-        await accounts.findOne({}).then(async user => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
             const page = await server.get('/announces/testAnnounce/edit').set('Cookie', `token=${user.token};`);
             const dom = new JSDOM(page.text);
             const container = dom.window.document.getElementsByClassName('container m-0 m-md-auto p-1 p-md-2')[0];
@@ -133,7 +138,7 @@ describe('Agent user tests', function () {
     });
 
     it('Bad fields in announce creation / edit page', async () => {
-        await accounts.findOne({}).then(async user => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
             /*Creation form*/
             const page = await server
                 .post('/announces/add')
@@ -189,7 +194,7 @@ describe('Agent user tests', function () {
     });
 
     it('Delete an announce', async () => {
-        await accounts.findOne({}).then(async user => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
             let theAnnounce = await announce.findOne({});
             await server
                 .post('/announces/' + theAnnounce.title + '/delete')
@@ -202,7 +207,7 @@ describe('Agent user tests', function () {
     });
 
     it('View non existant announce go back to main announce page', async () => {
-        await accounts.findOne({}).then(async user => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
             await server.get('/announces/innexistantAnnounce').set('Cookie', `token=${user.token};`).expect("Location", "/announces");
         });
     });
