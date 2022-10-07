@@ -220,6 +220,13 @@ describe('Agent user tests', function () {
             await server.get('/announces/innexistantAnnounce').set('Cookie', `token=${user.token};`).expect("Location", "/announces");
         });
     });
+
+    it('Edit non existing announce', async () => {
+       await accounts.findOne({'username': 'agent'}).then(async user => {
+           await server.get('/announces/innexistantAnnounce/edit').set('Cookie', `token=${user.token};`).expect("Location", "/announces");
+           await server.post('/announces/innexistantAnnounce/edit').set('Cookie', `token=${user.token};`).expect("Location", "/announces");
+       });
+    });
 });
 
 describe('Classic user tests', function () { //TODO check security of routes
