@@ -34,6 +34,11 @@ router.post('/add',
     body("description").trim().isString(),
     async function (req, res) {
 
+        if(req.user.type) {
+            res.redirect('/announces');
+            return;
+        }
+
         const errors = validationResult(req);
 
         let images = [];         // array containing base64 version of the image files
