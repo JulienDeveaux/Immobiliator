@@ -186,13 +186,13 @@ router.get('/:id/edit', async function (req, res, next) {
 
     const announce = await announces.where({title: req.params.id}).findOne();
 
+    if (!announce)
+        return res.redirect('/announces');
+
     let imageIdsUrl = [];
     for (let i = 0; i < announce.images.length; i++) {
         imageIdsUrl.push('/announces/image/' + req.params.id + '/' + announce.images[i].id);
     }
-
-    if (!announce)
-        return res.redirect('/announces');
 
     res.render('announces/form', {
         announce: announce,
