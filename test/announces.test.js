@@ -195,12 +195,10 @@ describe('Agent user tests', function () {
 
     it('Delete confirm page', async () => {
         await accounts.findOne({'username': 'agent'}).then(async user => {
-            const page = await server.get('/announces/testAnnounce/delete').set('Cookie', `token=${user.token};`);
+            const page = await server.get('/announces/testAnnounce/deleteConfirm').set('Cookie', `token=${user.token};`);
             const dom = new JSDOM(page.text);
-            const container = dom.window.document.getElementsByClassName('container m-0 m-md-auto p-1 p-md-2')[0];
-            expect(container).not.toBeNull();
-            expect(container.querySelector("input").textContent).toBe("Supprimer");
-            expect(container.querySelector("form.a").textContent).toBe("Annuler");
+            expect(dom.window.document.querySelector('form').querySelector("input").value).toBe("Supprimer");
+            expect(dom.window.document.querySelector("form>a").textContent).toBe("Annuler");
         });
     });
 
