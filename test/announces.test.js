@@ -11,13 +11,13 @@ beforeAll(async () => {
     await announce.deleteMany({});
     await accounts.deleteMany({});
     await server.post('/users/register').send({
-        username: 'user',
-        type: true,
+        username: 'classicUser',
+        type: 'true',
         password: 'test'
     });
     await server.post('/users/register').send({
         username: 'agent',
-        type: false,
+        type: 'false',
         password: 'test'
     });
 });
