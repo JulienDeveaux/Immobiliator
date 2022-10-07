@@ -29,6 +29,16 @@ describe('Agent user tests', function () {
 
     it('Create an announce', async () => {
         await accounts.findOne({'username': 'agent'}).then(async user => {
+            const addPage = await server.get('/announces/add').set('Cookie', 'token=' + user.token);
+            const dom = new JSDOM(addPage.text);
+            expect(dom.window.document.querySelectorAll('input').length).toBe(6);
+            expect(dom.window.document.querySelector('input[name="title"]').value).toBe('');
+            expect(dom.window.document.querySelector('input[name="price"]').textContent).toBe('');
+            expect(dom.window.document.querySelector('textarea').value).toBe('');
+            expect(dom.window.document.querySelector('input[name="availability"]').textContent).toBe('');
+            expect(dom.window.document.querySelector('select[name="statusType"]').value).toBe('0');
+            expect(dom.window.document.querySelector('input[name="isPublish"]').value).toBe('on');
+
             await server
                 .post('/announces/add')
                 .send({
@@ -234,6 +244,7 @@ describe('Classic user tests', function () { //TODO check security of routes
 
     it('Create an announce rejection', async () => {
         await accounts.findOne({'username': 'classicUser'}).then(async user => {
+            await server.get('/announces/add').set('Cookie', `token=${user.token};`).expect("Location", "/");
             await server
                 .post('/announces/add')
                 .send({
@@ -254,6 +265,7 @@ describe('Classic user tests', function () { //TODO check security of routes
 
     it('Edit an announce rejection', async () => {
         await accounts.findOne({'username': 'classicUser'}).then(async user => {
+            await server.get('/announces/testAnnounce/edit').set('Cookie', `token=${user.token};`).expect("Location", "/announces/testAnnounce");
             await server
                 .post('/announces/testAnnounce/edit')
                 .send({
@@ -291,6 +303,7 @@ describe('Classic user tests', function () { //TODO check security of routes
 
     it('Delete an announce rejection', async () => {
         await accounts.findOne({'username': 'classicUser'}).then(async user => {
+            await server.get('/announces/testAnnounce/deleteConfirm').set('Cookie', `token=${user.token};`).expect("Location", "/announces");
             await server
                 .post('/announces/testAnnounce/delete')
                 .set('Cookie', `token=${user.token};`)
