@@ -10,7 +10,7 @@ beforeAll(async () => {
     const server = request(app);
     await announce.deleteMany({});
     await accounts.deleteMany({});
-    await server.post('/register').send({
+    await server.post('/users/register').send({
         username: 'agent',
         type: false,
         password: 'test'

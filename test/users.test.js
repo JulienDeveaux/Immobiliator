@@ -17,7 +17,7 @@ describe('Users tests', function() {
 
   it('create one test user', async () =>
   {
-    await server.post('/register').send({
+    await server.post('/users/register').send({
       username: 'test',
       type: true, // classic user
       password: 'test'
@@ -28,7 +28,7 @@ describe('Users tests', function() {
 
   it('connect to app with test user', (done) =>
   {
-    server.post('/login').send({
+    server.post('/users/login').send({
       username: 'test',
       password: 'test'
     }).expect(302).expect('Location', '/').end(done);
@@ -49,7 +49,7 @@ describe('Users tests', function() {
   {
     const account = await accounts.findOne({});
 
-    await server.post('/modifyUser')
+    await server.post('/users/modifyUser')
         .set('Cookie', `token=${account.token};`)
         .send({
           username: 'testModify',
@@ -63,6 +63,6 @@ describe('Users tests', function() {
 
   it('access to unauthorized route when not connected', (done) =>
   {
-    server.get('/logout').expect(302).expect('Location', '/').end(done);
+    server.get('/users/logout').expect(302).expect('Location', '/').end(done);
   });
 }); 
