@@ -1,15 +1,13 @@
-FROM node:8.11-alpine
+FROM node:18
 
-WORKDIR /usr/src/app
+WORKDIR /immobiliator
 
-ARG NODE_ENV
-ENV NODE_ENV $NODE_ENV
+COPY package*.json ./
 
-COPY package*.json /usr/src/app/
 RUN npm install
 
-COPY . /usr/src/app
+COPY . .
 
-ENV PORT 5000
-EXPOSE $PORT
+EXPOSE 3000
+
 CMD [ "npm", "start" ]

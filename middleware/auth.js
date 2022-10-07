@@ -1,6 +1,6 @@
 module.exports = class auth {
     static ensureAuthenticated = function(req, res, next) {
-        const allowedGuestRoutes = ['/login', '/register'];
+        const allowedGuestRoutes = ['/users/login', '/users/register'];
         if (req.user) {
             return next();
         } else {
