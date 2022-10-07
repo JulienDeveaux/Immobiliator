@@ -1,10 +1,10 @@
-extends layout
+extends ../layout
 
 block content
     .container
         h1 Page de connexion
         br
-        form(role='form', action="/login", method="post", style='max-width: 300px;')
+        form(role='form', action="/users/login", method="post", style='max-width: 300px;')
             if (error)
                 p.text-danger #{error}
             .form-group

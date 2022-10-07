@@ -25,19 +25,19 @@ html
       div(class= 'collapse navbar-collapse', id= 'navbarSupportedContent')
         ul(class= 'navbar-nav mr-auto')
           li(class= 'nav-item')
-            a(class= 'nav-link', href= '/modifyUser') Modifier l'utilisateur
+            a(class= 'nav-link', href= '/users/modifyUser') Modifier l'utilisateur
           li(class= 'nav-item')
             a(class= 'nav-link', href= '/announces') Annonces
         div(class='text-end w-100')
           if (!user)
             div(class= 'row navbar-nav')
               div(class='col-10 text-end nav-item px-0')
-                a(class='nav-link', href="/login") Se connecter
+                a(class='nav-link', href="/users/login") Se connecter
               div(class='col-2 px-0')
-                a(class='nav-link', href="/register") S'identifier
+                a(class='nav-link', href="/users/register") S'identifier
           else
             div(class='nav-link w-100 active') Bonjour #{user.username}
-            a(href="/logout") Déconnexion
+            a(href="/users/logout") Déconnexion
 
     div(class= 'container m-0 m-md-auto p-1 p-md-2')
       block content
