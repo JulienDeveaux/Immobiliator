@@ -10,7 +10,7 @@ beforeAll(async () => {
     const server = request(app);
     await announce.deleteMany({});
     await accounts.deleteMany({});
-    await server.post('/register').send({
+    await server.post('/users/register').send({
         username: 'agent',
         type: false,
         password: 'test'
@@ -198,6 +198,12 @@ describe('Agent user tests', function () {
         announce.findOne({}, (err, testAnnounce) => {
             expect(err).toBeNull();
             expect(testAnnounce).toBeNull();
+        });
+    });
+
+    it('View non existant announce go back to main announce page', async () => {
+        await accounts.findOne({}).then(async user => {
+            await server.get('/announces/innexistantAnnounce').set('Cookie', `token=${user.token};`).expect("Location", "/announces");
         });
     });
 });
