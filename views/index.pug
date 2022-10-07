@@ -2,11 +2,11 @@ extends layout
 
 block content
   if (!user)
-    a(href="/login") Connexion
+    a(href="/users/login") Connexion
     br
-    a(href="/register") S'enregistrer
+    a(href="/users/register") S'enregistrer
   if (user)
     h1 Bienvenue sur le site Immobiliator
     h2 Un site pour explorer les biens immobiliers disponibles grâce à nos agents
     p Vous êtes actuellement connecté avec l'utilisateur #{user.username} avec le role #{user.type ? "Utilisateur" : "Agent Immobilier"}
-    a(href="/logout") Déconnexion
+    a(href="/users/logout") Déconnexion
