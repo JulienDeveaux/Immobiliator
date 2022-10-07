@@ -25,4 +25,18 @@ describe('Other uncategorized tests', () =>
         const user = await accounts.findOne({});
         await server.get('/ping').set('Cookie', `token=${user.token}`).expect(/pong!/);
     });
+
+    it('test 404 when connected', async () =>
+    {
+        const user = await accounts.findOne({});
+        await server.get('/jeSaisPasQuoiMettrePourUn404')
+            .set('Cookie', `token=${user.token}`)
+            .expect(/Not Found/);
+    });
+
+    it('test 404 when not connected', async () =>
+    {
+        await server.get('/jeSaisPasQuoiMettrePourUn404')
+            .expect(302);
+    });
 });
