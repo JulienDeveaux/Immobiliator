@@ -5,6 +5,8 @@ block content
         h1 Page de création de compte
         br
         form(role='form', action="/users/register", method="post", style='max-width: 300px;')
+            if (error)
+                p.text-danger #{error}
             .form-group
                 input.form-control(type='text', name="username", placeholder='Nom d\'utilisateur')
             .form-group
