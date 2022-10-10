@@ -11,8 +11,13 @@ beforeAll(async () => {
     await announce.deleteMany({});
     await accounts.deleteMany({});
     await server.post('/users/register').send({
+        username: 'classicUser',
+        type: 'true',
+        password: 'test'
+    });
+    await server.post('/users/register').send({
         username: 'agent',
-        type: false,
+        type: 'false',
         password: 'test'
     });
 });
@@ -23,7 +28,17 @@ describe('Agent user tests', function () {
     const server = request(app);
 
     it('Create an announce', async () => {
-        await accounts.findOne({}).then(async user => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
+            const addPage = await server.get('/announces/add').set('Cookie', 'token=' + user.token);
+            const dom = new JSDOM(addPage.text);
+            expect(dom.window.document.querySelectorAll('input').length).toBe(6);
+            expect(dom.window.document.querySelector('input[name="title"]').value).toBe('');
+            expect(dom.window.document.querySelector('input[name="price"]').textContent).toBe('');
+            expect(dom.window.document.querySelector('textarea').value).toBe('');
+            expect(dom.window.document.querySelector('input[name="availability"]').textContent).toBe('');
+            expect(dom.window.document.querySelector('select[name="statusType"]').value).toBe('0');
+            expect(dom.window.document.querySelector('input[name="isPublish"]').value).toBe('on');
+
             await server
                 .post('/announces/add')
                 .send({
@@ -50,7 +65,7 @@ describe('Agent user tests', function () {
     });
 
     it('Show all announces', async () => {
-        await accounts.findOne({}).then(async user => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
             const page = await server.get('/announces').set('Cookie', `token=${user.token};`);
             const dom = new JSDOM(page.text);
             const table = dom.window.document.querySelector('table');
@@ -64,9 +79,11 @@ describe('Agent user tests', function () {
         });
     });
 
-    it('Edit an announce', async () => {
-        await accounts.findOne({}).then(async user => {
-            const page = await server.get('/announces/testAnnounce').set('Cookie', `token=${user.token};`);
+    it('View announce', async () => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
+            let theAnnounce = await announce.findOne({});
+
+            const page = await server.get('/announces/' + theAnnounce.title).set('Cookie', `token=${user.token};`);
             const dom = new JSDOM(page.text);
             const container = dom.window.document.getElementsByClassName('container m-0 m-md-auto p-1 p-md-2')[0];
             expect(container).not.toBeNull();
@@ -84,7 +101,31 @@ describe('Agent user tests', function () {
             const thirdRow = rows[3].textContent.replace("Prix", "");
             expect(thirdRow).toBe("100 €");
 
-            // delete action now
+        });
+    });
+
+    it('Edit an announce', async () => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
+            const page = await server.get('/announces/testAnnounce/edit').set('Cookie', `token=${user.token};`);
+            const dom = new JSDOM(page.text);
+            const container = dom.window.document.getElementsByClassName('container m-0 m-md-auto p-1 p-md-2')[0];
+            expect(container).not.toBeNull();
+            const rows = container.getElementsByClassName('row');
+            expect(rows[0].querySelector("h2").textContent).toBe("Modifier l\'annonce testAnnounce");
+
+            const firstRow = rows[2];
+            expect(firstRow.querySelector("input[type='text']").value).toBe("testAnnounce");
+            expect(firstRow.querySelector("select").value).toBe("0");       // 0 = Available
+
+            const secondRow = rows[3]
+            expect(secondRow.querySelector('input[type="date"]').value).toBe("2022-10-18");
+            expect(secondRow.querySelector(('select')).value).toBe("true"); // true = Sell
+            expect(secondRow.querySelector('input[type="number"]').value).toBe("100");
+
+            expect(rows[5].querySelector('input[type="checkbox"]').value).toBe("on");
+            expect(rows[6].querySelector('textarea').textContent).toBe("test description for a test announce");
+
+            // Edit action now
             await server
                 .post('/announces/testAnnounce/edit')
                 .send({
@@ -106,8 +147,73 @@ describe('Agent user tests', function () {
         });
     });
 
+    it('Bad fields in announce creation / edit page', async () => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
+            /*Creation form*/
+            const page = await server
+                .post('/announces/add')
+                .send({
+                    title: 'test',          // too short
+                    statusType: '3',        // bad status
+                    isPublish: "off",       // impossible value
+                    availability: '20-1-1', // bad date
+                    type: 3,                // should be boolean
+                    price: "one hundred",   // should be number
+                    description: 700        // should be good (anything will be converted to string)
+                })
+                .set('Cookie', `token=${user.token};`);
+            const createDom = new JSDOM(page.text);
+            let form = createDom.window.document.querySelector('form');
+            let secondRow = form.getElementsByClassName('row')[1];
+            let errorList = secondRow.querySelector('ul');
+            let errorListContent = Array.from(errorList.children).map(li => li.textContent);
+            expect(errorListContent.length).toBe(6);
+            expect(errorListContent).toContain("title: Invalid value");
+            expect(errorListContent).toContain("statusType: Invalid value");
+            expect(errorListContent).toContain("isPublish: Invalid value");
+            expect(errorListContent).toContain("availability: Invalid value");
+            expect(errorListContent).toContain("type: Invalid value");
+            expect(errorListContent).toContain("price: Invalid value");
+
+            /*Edit form*/
+            const editPage = await server
+                .post('/announces/testAnnounce/edit')
+                .send({
+                    title: 'test',          // too short
+                    statusType: '3',        // bad status
+                    isPublish: "off",       // impossible value
+                    availability: '20-1-1', // bad date
+                    type: 3,                // should be boolean
+                    price: "one hundred",   // should be number
+                    description: 700        // should be good (anything will be converted to string)
+                })
+                .set('Cookie', `token=${user.token};`);
+            const editDom = new JSDOM(editPage.text);
+            form = editDom.window.document.querySelector('form');
+            secondRow = form.getElementsByClassName('row')[1];
+            errorList = secondRow.querySelector('ul');
+            errorListContent = Array.from(errorList.children).map(li => li.textContent);
+            expect(errorListContent.length).toBe(6);
+            expect(errorListContent).toContain("title: Invalid value");
+            expect(errorListContent).toContain("statusType: Invalid value");
+            expect(errorListContent).toContain("isPublish: Invalid value");
+            expect(errorListContent).toContain("availability: Invalid value");
+            expect(errorListContent).toContain("type: Invalid value");
+            expect(errorListContent).toContain("price: Invalid value");
+        });
+    });
+
+    it('Delete confirm page', async () => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
+            const page = await server.get('/announces/testAnnounce/deleteConfirm').set('Cookie', `token=${user.token};`);
+            const dom = new JSDOM(page.text);
+            expect(dom.window.document.querySelector('form').querySelector("input").value).toBe("Supprimer");
+            expect(dom.window.document.querySelector("form>a").textContent).toBe("Annuler");
+        });
+    });
+
     it('Delete an announce', async () => {
-        await accounts.findOne({}).then(async user => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
             let theAnnounce = await announce.findOne({});
             await server
                 .post('/announces/' + theAnnounce.title + '/delete')
@@ -116,6 +222,94 @@ describe('Agent user tests', function () {
         announce.findOne({}, (err, testAnnounce) => {
             expect(err).toBeNull();
             expect(testAnnounce).toBeNull();
+        });
+    });
+
+    it('View non existant announce go back to main announce page', async () => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
+            await server.get('/announces/innexistantAnnounce').set('Cookie', `token=${user.token};`).expect("Location", "/announces");
+        });
+    });
+
+    it('Edit non existing announce', async () => {
+       await accounts.findOne({'username': 'agent'}).then(async user => {
+           await server.get('/announces/innexistantAnnounce/edit').set('Cookie', `token=${user.token};`).expect("Location", "/announces");
+           await server.post('/announces/innexistantAnnounce/edit').set('Cookie', `token=${user.token};`).expect("Location", "/announces");
+       });
+    });
+});
+
+describe('Classic user tests', function () { //TODO check security of routes
+    const server = request(app);
+
+    it('Create an announce rejection', async () => {
+        await accounts.findOne({'username': 'classicUser'}).then(async user => {
+            await server.get('/announces/add').set('Cookie', `token=${user.token};`).expect("Location", "/");
+            await server
+                .post('/announces/add')
+                .send({
+                    title: 'testAnnounce',
+                    statusType: '0', //available
+                    isPublish: "on",
+                    availability: '2022-11-18',
+                    type: true, //sell
+                    price: 100,
+                    description: 'test description for a test announce'
+                })
+                .set('Cookie', `token=${user.token};`)
+                .expect("Location", "/announces");//TODO : add images
+            let annnouce = await announce.findOne({'title': 'testAnnounce'});
+            expect(annnouce).toBeNull();
+        });
+    });
+
+    it('Edit an announce rejection', async () => {
+        await accounts.findOne({'username': 'classicUser'}).then(async user => {
+            await server.get('/announces/testAnnounce/edit').set('Cookie', `token=${user.token};`).expect("Location", "/announces/testAnnounce");
+            await server
+                .post('/announces/testAnnounce/edit')
+                .send({
+                    title: 'testAnnounce',
+                    statusType: '0', //available
+                    isPublish: "on",
+                    availability: '2022-11-18',
+                    type: true, //sell
+                    price: 100,
+                    description: 'test description for a test announce'
+                })
+                .set('Cookie', `token=${user.token};`)
+                .expect("Location", "/announces/testAnnounce");
+            let annnouce = await announce.findOne({'title': 'testAnnounce'});
+            expect(annnouce).toBeNull();
+        });
+    });
+
+    it('Create an announce with agent role for the next tests', async () => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
+            await server
+                .post('/announces/add')
+                .send({
+                    title: 'testAnnounce',
+                    statusType: '0', //available
+                    isPublish: "on",
+                    availability: '2022-11-18',
+                    type: true, //sell
+                    price: 100,
+                    description: 'test description for a test announce'
+                })
+                .set('Cookie', `token=${user.token};`);
+        });
+    });
+
+    it('Delete an announce rejection', async () => {
+        await accounts.findOne({'username': 'classicUser'}).then(async user => {
+            await server.get('/announces/testAnnounce/deleteConfirm').set('Cookie', `token=${user.token};`).expect("Location", "/announces");
+            await server
+                .post('/announces/testAnnounce/delete')
+                .set('Cookie', `token=${user.token};`)
+                .expect("Location", "/announces");
+            let annnouce = await announce.findOne({'title': 'testAnnounce'});
+            expect(annnouce).toBeDefined();
         });
     });
 });
