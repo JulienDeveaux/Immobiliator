@@ -3,6 +3,7 @@ const app = require('../app');
 const announce = require('../models/announce');
 const accounts = require('../models/account');
 const jsdom = require('jsdom');
+const fs = require("fs");
 const {JSDOM} = jsdom;
 
 // purge announce & users in db for test
@@ -39,17 +40,16 @@ describe('Agent user tests', function () {
             expect(dom.window.document.querySelector('select[name="statusType"]').value).toBe('0');
             expect(dom.window.document.querySelector('input[name="isPublish"]').value).toBe('on');
 
-            await server
+            await request(app)
                 .post('/announces/add')
-                .send({
-                    title: 'testAnnounce',
-                    statusType: '0', //available
-                    isPublish: "on",
-                    availability: '2022-11-18',
-                    type: true, //sell
-                    price: 100,
-                    description: 'test description for a test announce'
-                })
+                .field('title', 'testAnnounce')
+                .field('statusType', '0')
+                .field('isPublish', 'on')
+                .field('availability', '2022-11-18')
+                .field('type', true)
+                .field('price', 100)
+                .field('description', 'test description for a test announce')
+                .field('fileUpload', fs.createReadStream('./test/Image samples/sample-birch-400x300.jpg'))
                 .set('Cookie', `token=${user.token};`);
         });
         announce.findOne({}, (err, testAnnounce) => {
@@ -101,6 +101,21 @@ describe('Agent user tests', function () {
             const thirdRow = rows[3].textContent.replace("Prix", "");
             expect(thirdRow).toBe("100 €");
 
+            expect(rows[4].textContent.replace("Description:", "")).toBe("test description for a test announce");
+
+            expect(rows[5].querySelector("img").src).toBe("/announces/image/" + theAnnounce.title + "/" + theAnnounce.images[0]._id);
+        });
+    });
+
+    it('fetch image route', async () => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
+            await announce.findOne({'title': 'testAnnounce'}).then(async announce => {
+                const page = await request(app)
+                    .get(`/announces/image/${announce.title}/${announce.images[0]._id}`)
+                    .set('Cookie', `token=${user.token};`);
+                expect(page.headers['content-type']).toBe('image/jpg');
+                expect(page.headers['content-length']).toBe('121036');
+            });
         });
     });
 
@@ -138,42 +153,54 @@ describe('Agent user tests', function () {
                     description: 'test description for a test announce'
                 })
                 .set('Cookie', `token=${user.token};`);
+            await request(app)
+                .post('/announces/testAnnounce/edit')
+                .field('title', 'testAnnounce')
+                .field('statusType', '0')
+                .field('isPublish', 'on')
+                .field('availability', '2022-11-18')
+                .field('type', true)
+                .field('price', 200)
+                .field('description', 'test description for a test announce')
+                .field('fileUpload', fs.createReadStream('./test/Image samples/sample-city-park-400x300.jpg'))
+                .set('Cookie', `token=${user.token};`);
 
             const pageEdited = await server.get('/announces/testAnnounce').set('Cookie', `token=${user.token};`);
             const domEdited = new JSDOM(pageEdited.text);
             const containerEdited = domEdited.window.document.getElementsByClassName('container m-0 m-md-auto p-1 p-md-2')[0];
             const editedPrice = containerEdited.getElementsByClassName('row')[3].textContent.replace("Prix", "");
             expect(editedPrice).toBe("200 €");
+            //todo image check view
         });
     });
 
     it('Bad fields in announce creation / edit page', async () => {
         await accounts.findOne({'username': 'agent'}).then(async user => {
             /*Creation form*/
-            const page = await server
+            const page = await request(app)
                 .post('/announces/add')
-                .send({
-                    title: 'test',          // too short
-                    statusType: '3',        // bad status
-                    isPublish: "off",       // impossible value
-                    availability: '20-1-1', // bad date
-                    type: 3,                // should be boolean
-                    price: "one hundred",   // should be number
-                    description: 700        // should be good (anything will be converted to string)
-                })
+                .field('title', 'test')                 // too short
+                .field('statusType', '3')               // bad status
+                .field('isPublish', 'off')              // impossible value
+                .field('availability', '2022-1-1')      // bad date
+                .field('type', 3)                       // should be boolean
+                .field('price', "one hundred")          // should be a number
+                .field('description', 700)              // should be good (anything will be converted to string)
+                .field('fileUpload', fs.createReadStream('./test/announces.test.js'))       // obviously not an image
                 .set('Cookie', `token=${user.token};`);
             const createDom = new JSDOM(page.text);
             let form = createDom.window.document.querySelector('form');
             let secondRow = form.getElementsByClassName('row')[1];
             let errorList = secondRow.querySelector('ul');
             let errorListContent = Array.from(errorList.children).map(li => li.textContent);
-            expect(errorListContent.length).toBe(6);
+            expect(errorListContent.length).toBe(7);
             expect(errorListContent).toContain("title: Invalid value");
             expect(errorListContent).toContain("statusType: Invalid value");
             expect(errorListContent).toContain("isPublish: Invalid value");
             expect(errorListContent).toContain("availability: Invalid value");
             expect(errorListContent).toContain("type: Invalid value");
             expect(errorListContent).toContain("price: Invalid value");
+            expect(errorListContent).toContain("Image: Invalid Image (announces.test.js)")
 
             /*Edit form*/
             const editPage = await server
@@ -310,6 +337,84 @@ describe('Classic user tests', function () { //TODO check security of routes
                 .expect("Location", "/announces");
             let annnouce = await announce.findOne({'title': 'testAnnounce'});
             expect(annnouce).toBeDefined();
+        });
+    });
+});
+
+describe('More images tests', function () {
+    it('Add more than one image with multiple types', async () => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
+            await request(app)
+                .post('/announces/add')
+                .field('title', 'imageAnnounce')
+                .field('statusType', '0')
+                .field('isPublish', 'on')
+                .field('availability', '2022-11-18')
+                .field('type', true)
+                .field('price', 100)
+                .field('description', 'test description for a test announce')
+                .attach('fileUpload', fs.createReadStream('./test/Image samples/sample-birch-400x300.jpg'))
+                .attach('fileUpload', fs.createReadStream('./test/Image samples/sample-bumblebee-400x300.png'))
+                .set('Cookie', `token=${user.token};`);
+            const annnouce = await announce.findOne({'title': 'imageAnnounce'});
+            expect(annnouce).toBeDefined();
+            expect(annnouce.images.length).toBe(2);
+        });
+    });
+
+    it('show png image', async () => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
+            await announce.findOne({'title': 'imageAnnounce'}).then(async announce => {
+                const page = await request(app)
+                    .get(`/announces/image/${announce.title}/${announce.images[1]._id}`)
+                    .set('Cookie', `token=${user.token};`);
+                expect(page.headers['content-type']).toBe('image/png');
+                expect(page.headers['content-length']).toBe('195459');
+            });
+        });
+    });
+
+
+    it('show jpg image', async () => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
+            await announce.findOne({'title': 'imageAnnounce'}).then(async announce => {
+                const page = await request(app)
+                    .get(`/announces/image/${announce.title}/${announce.images[0]._id}`)
+                    .set('Cookie', `token=${user.token};`);
+                expect(page.headers['content-type']).toBe('image/jpg');
+                expect(page.headers['content-length']).toBe('121036');
+            });
+        });
+    });
+
+    it('Bad image edit test', async () => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
+            const editPage = await request(app)
+                .post('/announces/imageAnnounce/edit')
+                .field('title', 'test')                 // too short
+                .field('statusType', '3')               // bad status
+                .field('isPublish', 'off')              // impossible value
+                .field('availability', '2022-1-1')      // bad date
+                .field('type', 3)                       // should be boolean
+                .field('price', "one hundred")          // should be a number
+                .field('description', 700)              // should be good (anything will be converted to string)
+                .attach('fileUpload', fs.createReadStream('./test/announces.test.js'))     //obviously not an image
+                .attach('fileUpload', fs.createReadStream('./test/users.test.js'))         //obviously not an image
+                .set('Cookie', `token=${user.token};`);
+            const editDom = new JSDOM(editPage.text);
+            form = editDom.window.document.querySelector('form');
+            secondRow = form.getElementsByClassName('row')[1];
+            errorList = secondRow.querySelector('ul');
+            errorListContent = Array.from(errorList.children).map(li => li.textContent);
+            expect(errorListContent.length).toBe(8);
+            expect(errorListContent).toContain("title: Invalid value");
+            expect(errorListContent).toContain("statusType: Invalid value");
+            expect(errorListContent).toContain("isPublish: Invalid value");
+            expect(errorListContent).toContain("availability: Invalid value");
+            expect(errorListContent).toContain("type: Invalid value");
+            expect(errorListContent).toContain("price: Invalid value");
+            expect(errorListContent).toContain("Image: Invalid Image (announces.test.js)");
+            expect(errorListContent).toContain("Image: Invalid Image (users.test.js)");
         });
     });
 });
