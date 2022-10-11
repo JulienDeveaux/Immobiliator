@@ -43,15 +43,21 @@ router.post('/add',
 
         let images = [];         // array containing base64 version of the image files
         if (req.files) {
-            for (let it = 0; it < req.files.fileUpload.length; it++) {
-                let bitmap = req.files.fileUpload[it].data;
+            let filesToParse = [];
+            if(req.files.fileUpload.length === undefined) {
+                filesToParse.push(req.files.fileUpload);
+            } else {
+                filesToParse = req.files.fileUpload;
+            }
+            for (let it = 0; it < filesToParse.length; it++) {
+                let bitmap = filesToParse[it].data;
                 if (bitmap.toString('hex', 0, 4) === magicNumber.png ||
                     bitmap.toString('hex', 0, 4) === magicNumber.jpg) {
                     //encoding to base64
                     let base64Image = new Buffer(bitmap).toString('base64');
                     images.push({data: base64Image});
                 } else {
-                    errors.errors.push({msg: "Invalid Image (" + req.files.fileUpload[it].name + ")", param: "Image"});
+                    errors.errors.push({msg: "Invalid Image (" + filesToParse[it].name + ")", param: "Image"});
                 }
             }
         }
@@ -221,15 +227,21 @@ router.post('/:id/edit',
 
         let images = [];         // array containing base64 version of the image files
         if (req.files) {
-            for (let it = 0; it < req.files.fileUpload.length; it++) {
-                let bitmap = req.files.fileUpload[it].data;
+            let filesToParse = [];
+            if(req.files.fileUpload.length === undefined) {
+                filesToParse.push(req.files.fileUpload);
+            } else {
+                filesToParse = req.files.fileUpload;
+            }
+            for (let it = 0; it < filesToParse.length; it++) {
+                let bitmap = filesToParse[it].data;
                 if (bitmap.toString('hex', 0, 4) === magicNumber.png ||
                     bitmap.toString('hex', 0, 4) === magicNumber.jpg) {
                     //encoding to base64
                     let base64Image = new Buffer(bitmap).toString('base64');
                     images.push({data: base64Image});
                 } else {
-                    errors.errors.push({msg: "Invalid Image (" + req.files.fileUpload[it].name + ")", param: "Image"});
+                    errors.errors.push({msg: "Invalid Image (" + filesToParse[it].name + ")", param: "Image"});
                 }
             }
         }
