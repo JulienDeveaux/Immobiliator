@@ -220,6 +220,8 @@ router.post('/:id/edit',
         if (req.user.type)
             return res.redirect(`/announces/${req.params.id}`);
 
+        const errors = validationResult(req);
+
         const announce = await announces.where({title: req.params.id}).findOne();
 
         if (!announce)
@@ -254,8 +256,6 @@ router.post('/:id/edit',
         announce.price = parseInt(req.body.price);
         announce.description = req.body.description;
         announce.images = images;
-
-        const errors = validationResult(req);
 
         if (errors.isEmpty()) {
             await announce.save();
