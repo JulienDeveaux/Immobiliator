@@ -418,3 +418,80 @@ describe('More images tests', function () {
         });
     });
 });
+
+describe('Q&A tests', function () {
+    const server = request(app);
+
+    it('Add a question with an agent role', async () => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
+            await server
+                .post('/announces/testAnnounce')
+                .send({
+                    question: 'test question'
+                })
+                .set('Cookie', `token=${user.token};`)
+                .expect('Location', '/announces/testAnnounce');
+            const annnouce = await announce.findOne({'title': 'testAnnounce'});
+            expect(annnouce).toBeDefined();
+            expect(annnouce.questions.length).toBe(0);
+        });
+    });
+
+    it('Add a question with a classic user role', async () => {
+        await accounts.findOne({'username': 'classicUser'}).then(async user => {
+            await server
+                .post('/announces/testAnnounce')
+                .send({
+                    question: 'test question'
+                })
+                .set('Cookie', `token=${user.token};`);
+            const annnouce = await announce.findOne({'title': 'testAnnounce'});
+            expect(annnouce).toBeDefined();
+            expect(annnouce.questions.length).toBe(1);
+            expect(annnouce.questions[0].text).toBe('test question');
+        });
+    });
+
+    it('Respond to a question with a classic user role', async () => {
+        await accounts.findOne({'username': 'classicUser'}).then(async user => {
+            await server
+                .post('/announces/testAnnounce')
+                .send({
+                    question: 'test question',
+                    answer: 'test answer'
+                })
+                .set('Cookie', `token=${user.token};`);
+            const annnouce = await announce.findOne({'title': 'testAnnounce'});
+            expect(annnouce).toBeDefined();
+            expect(annnouce.questions.length).toBe(2);
+        });
+    });
+
+    it('Respond to a question with an agent role', async () => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
+            await server
+                .post('/announces/testAnnounce')
+                .send({
+                    question: 'test question',
+                    answer: 'test answer'
+                })
+                .set('Cookie', `token=${user.token};`);
+            const annnouce = await announce.findOne({'title': 'testAnnounce'});
+            expect(annnouce).toBeDefined();
+            expect(annnouce.questions[0].answers.length).toBe(1);
+            expect(annnouce.questions[0].answers[0].text).toBe('test answer');
+        });
+    });
+
+    it('Send a question to a non existing announce', async () => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
+            await server
+                .post('/announces/nonExistingAnnounce')
+                .send({
+                    question: 'test question'
+                })
+                .set('Cookie', `token=${user.token};`)
+                .expect('Location', '/announces');
+        });
+    });
+});
