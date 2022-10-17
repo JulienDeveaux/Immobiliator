@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    networks:
+      - immobiliator
+  immobiliator:
+    image: dim145/immobiliator
+    ports:
+      - "3598:3000"
+    networks:
+      - immobiliator
+
+networks:
+  immobiliator:
