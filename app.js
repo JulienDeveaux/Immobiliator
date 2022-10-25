@@ -64,7 +64,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/announces', announcesRouter);
 
-app.use('/gaphql', GraphQL.graphqlHTTP({
+app.use('/graphql', GraphQL.graphqlHTTP({
   schema: require('./graphql/index'),
   graphiql: app.get('env') === 'development'
 }))

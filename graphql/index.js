@@ -13,6 +13,7 @@ const typeDefs = `
         isPublish: Boolean!
         statusType: Boolean!
         availbility: Date!
+        description: String!
         images: [Image]
         price: Float!
         questions: [Question]
