@@ -78,7 +78,7 @@ passport.deserializeUser(Account.deserializeUser());
 // mongoose
 let db = undefined;
 
-mongoose.connect(`mongodb://mongo:27017/${app.get('env') === 'test' ? 'testImmo' : 'immobiliator'}`)
+mongoose.connect(`mongodb://localhost:27017/${app.get('env') === 'test' ? 'testImmo' : 'immobiliator'}`)
     .then(databaseCon =>
     {
         db = databaseCon;
