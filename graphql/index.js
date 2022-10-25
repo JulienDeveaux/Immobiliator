@@ -6,7 +6,8 @@ const Account = require('../models/account')
 const typeDefs = require("./typeDefs")
 
 const resolvers = {
-    Query: require('./query')
+    Query: require('./query'),
+    Mutation: require('./mutation')
 };
 
 module.exports = Tools.makeExecutableSchema(

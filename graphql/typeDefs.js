@@ -4,6 +4,25 @@ module.exports = `
         accounts: [Account]
     }
     
+    input ImageInput {
+        data: String!
+    }
+    
+    input AnnounceInput {
+        title: String!
+        type: Boolean!
+        isPublish: Boolean!
+        statusType: Boolean!
+        availability: Date!
+        description: String!
+        images: ImageInput
+        price: Float!
+    }
+    
+    type Mutation {
+        createAnnounce(input: AnnounceInput): Announce
+    }
+    
     type Announce {
         title: String!
         type: Boolean!
