@@ -24,5 +24,9 @@ module.exports = {
         const announce = new Announces(announceToCreate);
         await announce.save();
         return announce;
+    },
+
+    deleteAnnounce: (root, {input}, context) => {
+        return Announces.findOneAndDelete({title: input.title});
     }
 }

@@ -4,6 +4,10 @@ module.exports = `
         accounts: [Account]
     }
     
+    input AnnounceTitle {
+        title: String
+    }
+    
     input ImageInput {
         data: String!
     }
@@ -20,7 +24,8 @@ module.exports = `
     }
     
     type Mutation {
-        createAnnounce(input: AnnounceInput): Announce
+        createAnnounce(input: AnnounceInput): Announce,
+        deleteAnnounce(input: AnnounceTitle): Announce
     }
     
     type Announce {
