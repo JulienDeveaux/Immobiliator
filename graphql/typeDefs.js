@@ -1,6 +1,6 @@
 module.exports = `
     type Query {
-        announces: [Announce]
+        announces(filters: Filter, orderBy: OrderBy): [Announce]
         accounts: [Account]
     }
     
@@ -32,6 +32,16 @@ module.exports = `
         createAnnounce(input: AnnounceInput): Announce,
         modifyAnnounce(input: AnnounceModifyInput): Announce,
         deleteAnnounce(input: AnnounceTitle): Announce
+    }
+    
+    input OrderBy {
+        field: String!
+        desc: Boolean!
+    }
+    
+    input Filter {
+        keys: [String]!
+        values: [String]!
     }
     
     type Announce {
