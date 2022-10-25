@@ -9,6 +9,7 @@ const passport = require('passport');
 const auth = require("./middleware/auth")
 const LocalStrategy = require('passport-local').Strategy;
 const Uuid = require('uuid');
+const GraphQL = require('express-graphql')
 
 
 const indexRouter = require('./routes/index');
@@ -62,6 +63,11 @@ app.all('*', auth.ensureAuthenticated);
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/announces', announcesRouter);
+
+app.use('/gaphql', GraphQL.graphqlHTTP({
+  schema: require('./graphql/index'),
+  graphiql: app.get('env') === 'development'
+}))
 
 // passport config
 const Account = require('./models/account');
