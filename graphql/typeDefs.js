@@ -9,7 +9,7 @@ module.exports = `
         type: Boolean!
         isPublish: Boolean!
         statusType: Boolean!
-        availbility: Date!
+        availability: Date!
         description: String!
         images: [Image]
         price: Float!
