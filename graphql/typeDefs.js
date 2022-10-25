@@ -23,8 +23,14 @@ module.exports = `
         price: Float!
     }
     
+    input AnnounceModifyInput {
+        title: String
+        modify: AnnounceInput
+    }
+    
     type Mutation {
         createAnnounce(input: AnnounceInput): Announce,
+        modifyAnnounce(input: AnnounceModifyInput): Announce,
         deleteAnnounce(input: AnnounceTitle): Announce
     }
     

@@ -26,6 +26,28 @@ module.exports = {
         return announce;
     },
 
+    modifyAnnounce: async (root, {input}, context) => {
+        const announceToModify = {
+            title: input.modify.title,
+            type: input.modify.type,
+            isPublish: input.modify.isPublish,
+            statusType: input.modify.statusType,
+            availability: input.modify.availability,
+            description: input.modify.description,
+            images: input.modify.images,
+            price: input.modify.price,
+            questions: input.modify.questions
+        }
+
+        Object.keys(announceToModify).forEach(key => {
+            if (announceToModify[key] === undefined) {
+                delete announceToModify[key];
+            }
+        });
+
+        return Announces.findOneAndUpdate({title: input.title}, announceToModify, {new: true});
+    },
+
     deleteAnnounce: (root, {input}, context) => {
         return Announces.findOneAndDelete({title: input.title});
     }
