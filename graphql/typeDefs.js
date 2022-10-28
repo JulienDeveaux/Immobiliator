@@ -28,10 +28,31 @@ module.exports = `
         modify: AnnounceInput
     }
     
+    input AccountInput {
+        username: String!
+        password: String!
+        type: Boolean!
+    }
+    
+    input AccountUsername {
+        username: String!
+    }
+    
+    input AccountModify {
+        username: String!
+        newUsername: String
+        oldPassword: String
+        newPassword: String
+        type: Boolean
+    }
+    
     type Mutation {
-        createAnnounce(input: AnnounceInput): Announce,
-        modifyAnnounce(input: AnnounceModifyInput): Announce,
+        createAnnounce(input: AnnounceInput): Announce
+        modifyAnnounce(input: AnnounceModifyInput): Announce
         deleteAnnounce(input: AnnounceTitle): Announce
+        createAccount(input: AccountInput): Account
+        deleteAccount(input: AccountUsername): Account
+        modifyAccount(input: AccountModify): Account
     }
     
     input OrderBy {
