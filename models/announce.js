@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
-const Announce = new Schema({
+const typedef = {
     title: String,
     type: Boolean, // true = vente / false = location
     isPublish: Boolean,
@@ -29,6 +29,11 @@ const Announce = new Schema({
             ]
         }
     ]
-});
+}
 
-module.exports = mongoose.model('Announce', Announce);
+const Announce = new Schema(typedef);
+
+const model = mongoose.model('Announce', Announce);
+model["typedef"] = typedef;
+
+module.exports = model;

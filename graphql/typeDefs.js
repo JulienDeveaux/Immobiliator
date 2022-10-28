@@ -1,7 +1,7 @@
 module.exports = `
     type Query {
         announces(filters: Filter, orderBy: OrderBy): [Announce]
-        accounts: [Account]
+        accounts(filters: Filter, orderBy: OrderBy): [Account]
     }
     
     input AnnounceTitle {
