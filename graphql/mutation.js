@@ -32,6 +32,31 @@ module.exports = {
         return Announces.findOneAndDelete({title: input.title});
     },
 
+    createQuestion: async (root, {input}, context) => {
+        const theAnnounce = await Announces.where({title: input.announceTitle}).findOne();
+        const question = {
+            text: input.text,
+            username: input.username,
+            date: new Date().toISOString()
+        }
+        theAnnounce.questions.push(question);
+        theAnnounce.save();
+        return theAnnounce;
+    },
+
+    createAnswer: async (root, {input}, context) => {
+        const theAnnounce = await Announces.where({title: input.announceTitle}).findOne();
+        const theQuestion = theAnnounce.questions.find(question => question.text === input.questionText);
+        const answer = {
+            text: input.text,
+            username: input.username,
+            date: new Date().toISOString()
+        }
+        theQuestion.answers.push(answer);
+        theAnnounce.save();
+        return theAnnounce;
+    },
+
     createAccount: (root, {input}, context) =>
     {
         const accountToCreate = inputToObj(input);

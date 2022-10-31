@@ -46,10 +46,25 @@ module.exports = `
         type: Boolean
     }
     
+    input QuestionInput {
+        announceTitle: String!
+        text: String!
+        username: String!
+    }
+    
+    input AnswerInput {
+        announceTitle: String!
+        questionText: String!
+        text: String!
+        username: String!
+    }
+    
     type Mutation {
         createAnnounce(input: AnnounceInput): Announce
         modifyAnnounce(input: AnnounceModifyInput): Announce
         deleteAnnounce(input: AnnounceTitle): Announce
+        createQuestion(input: QuestionInput): Announce
+        createAnswer(input: AnswerInput): Announce
         createAccount(input: AccountInput): Account
         deleteAccount(input: AccountUsername): Account
         modifyAccount(input: AccountModify): Account
