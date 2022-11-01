@@ -6,6 +6,8 @@ block content
 
     if (success)
         p.text-success Enregistrement effectué
+
+    p Api token: #{user.token}
     form(method='POST')
         legend Modifier l'utilisateur
         .form-group.mb-1

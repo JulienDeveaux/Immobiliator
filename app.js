@@ -90,8 +90,16 @@ passport.use("oauth", new GoogleStrategy({
   {
     account = await Account.create({
       username: profile.email,
-      type: false
+      type: false,
+      token: Uuid.v4(),
+      passwd: false
     });
+  }
+
+  if(!account.token)
+  {
+    account.token = Uuid.v4();
+    await account.save();
   }
 
   cb(undefined, account);

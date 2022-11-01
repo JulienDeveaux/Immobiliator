@@ -68,7 +68,7 @@ module.exports = {
 
         delete accountToCreate["password"];
 
-        return Account.register(new Account(accountToCreate), password);
+        return Account.register(new Account({...accountToCreate, passwd: true}), password);
     },
 
     deleteAccount: (root, {input}, context) => Account.findOneAndDelete({username: input.username}),
