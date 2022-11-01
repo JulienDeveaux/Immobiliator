@@ -115,13 +115,12 @@ router.post('/register', function(req, res, next) {
   });
 });
 
-router.get('/oauth', passport.authenticate('oauth'));
+router.get('/oauth', passport.authenticate('oauth', {scope: [ 'email', 'profile' ]}));
 
 router.get('/oauth/callback',
     passport.authenticate('oauth', {failureRedirect: '/login'}),
     function(req, res)
     {
-      console.log('res', req);
       res.redirect('/');
     });
 
