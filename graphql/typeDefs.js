@@ -68,6 +68,7 @@ module.exports = `
         createAccount(input: AccountInput): Account
         deleteAccount(input: AccountUsername): Account
         modifyAccount(input: AccountModify): Account
+        user_connection(identifier: Connection!): CookieToken
     }
     
     input OrderBy {
@@ -113,6 +114,15 @@ module.exports = `
         username: String!
         type: Boolean!
         token: String
+    }
+    
+    input Connection {
+        id: String!
+        mdp: String!
+    }
+    
+    type CookieToken {
+        token: String!
     }
     
     scalar Date
