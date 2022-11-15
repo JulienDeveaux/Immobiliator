@@ -69,7 +69,6 @@ module.exports = `
         deleteAccount(input: AccountUsername): Account
         modifyAccount(input: AccountModify): Account
         user_connection(identifier: Connection!): CookieToken
-        google_oauth: String
     }
     
     input OrderBy {
