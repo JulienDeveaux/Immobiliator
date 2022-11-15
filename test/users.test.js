@@ -141,4 +141,9 @@ describe('Users tests', function() {
     const newAccount = await accounts.findOne({});
     expect(newAccount.token).toBe("");
   });
+
+  it('test oauth', async () =>
+  {
+
+  });
 }); 
