@@ -1,5 +1,7 @@
 const Announces = require("../models/announce");
 const Account = require("../models/account");
+const Hash = require("password-hash");
+const Uuid = require("uuid");
 
 module.exports = {
     createAnnounce: async (root, {input}, context) => {
@@ -104,6 +106,31 @@ module.exports = {
         }
 
         return await account.save();
+    },
+    user_connection: async (root, args, context) =>
+    {
+        const authenticate = Account.authenticate();
+        const user = await Account.findOne({username: args.identifier.id});
+
+        if(user)
+        {
+            const res = await authenticate(user.username, args.identifier.mdp);
+
+            if(res.user)
+            {
+                if(!user.token)
+                {
+                    user.token = Uuid.v4();
+                    user.save();
+                }
+
+                return {
+                    token: user.token
+                }
+            }
+        }
+
+        throw "id or mdp invalid";
     }
 };
 

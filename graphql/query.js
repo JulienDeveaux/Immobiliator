@@ -2,7 +2,8 @@ const Announces = require("../models/announce");
 const Account = require("../models/account");
 
 module.exports = {
-    announces: (root, args, context) => {
+    announces: (root, args, context) =>
+    {
         return Announces.find(getFilter(Announces, args.filters)).sort(getOrderBy(args.orderBy));
     },
     accounts: (root, args, context) =>
