@@ -2,12 +2,18 @@ const Announces = require("../models/announce");
 const Account = require("../models/account");
 
 module.exports = {
-    announces: (root, args, context) =>
+    announces: async (root, args, context) =>
     {
+        if(!await UserAuth(context.cookies.token))
+            throw "you must be connected";
+
         return Announces.find(getFilter(Announces, args.filters)).sort(getOrderBy(args.orderBy));
     },
-    accounts: (root, args, context) =>
+    accounts: async (root, args, context) =>
     {
+        if(!await UserAuth(context.cookies.token))
+            throw "you must be connected";
+
         return Account.find(getFilter(Account, args.filters)).sort(getOrderBy(args.orderBy));
     }
 }
@@ -86,4 +92,14 @@ function toMongoFilter(type, key, obj)
 
         return tmp;
     }
+}
+
+async function UserAuth(token)
+{
+    if(!token)
+        return false;
+
+    const user = await Account.where({token: token}).findOne()
+
+    return !!user;
 }

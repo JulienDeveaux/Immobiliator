@@ -1,6 +1,6 @@
 module.exports = class auth {
     static ensureAuthenticated = function(req, res, next) {
-        const allowedGuestRoutes = ['/users/login', '/users/register', '/users/oauth', '/users/oauth/callback', '/users/token'];
+        const allowedGuestRoutes = ['/users/login', '/users/register', '/users/oauth', '/users/oauth/callback', '/users/token', '/graphql'];
         if (req.user) {
             return next();
         } else {
@@ -15,6 +15,7 @@ module.exports = class auth {
                     return next();
                 }
             });
+
             if (!publicRoute) {
                 console.log("access denied");
                 res.redirect('/');

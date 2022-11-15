@@ -5,6 +5,9 @@ const Uuid = require("uuid");
 
 module.exports = {
     createAnnounce: async (root, {input}, context) => {
+        if(!await UserAuth(context.cookies.token))
+            throw "you must be connected";
+
         const announceToCreate = inputToObj(input);
 
         Object.keys(announceToCreate).forEach(key => {
@@ -19,6 +22,9 @@ module.exports = {
     },
 
     modifyAnnounce: async (root, {input}, context) => {
+        if(!await UserAuth(context.cookies.token))
+            throw "you must be connected";
+
         const announceToModify = inputToObj(input);
 
         Object.keys(announceToModify).forEach(key => {
@@ -30,11 +36,17 @@ module.exports = {
         return Announces.findOneAndUpdate({title: input.title}, announceToModify, {new: true});
     },
 
-    deleteAnnounce: (root, {input}, context) => {
+    deleteAnnounce: async (root, {input}, context) => {
+        if(!await UserAuth(context.cookies.token))
+            throw "you must be connected";
+
         return Announces.findOneAndDelete({title: input.title});
     },
 
     createQuestion: async (root, {input}, context) => {
+        if(!await UserAuth(context.cookies.token))
+            throw "you must be connected";
+
         const theAnnounce = await Announces.where({title: input.announceTitle}).findOne();
         const question = {
             text: input.text,
@@ -47,6 +59,9 @@ module.exports = {
     },
 
     createAnswer: async (root, {input}, context) => {
+        if(!await UserAuth(context.cookies.token))
+            throw "you must be connected";
+
         const theAnnounce = await Announces.where({title: input.announceTitle}).findOne();
         const theQuestion = theAnnounce.questions.find(question => question.text === input.questionText);
         const answer = {
@@ -59,8 +74,11 @@ module.exports = {
         return theAnnounce;
     },
 
-    createAccount: (root, {input}, context) =>
+    createAccount: async (root, {input}, context) =>
     {
+        if(!await UserAuth(context.cookies.token))
+            throw "you must be connected";
+
         const accountToCreate = inputToObj(input);
 
         const password = accountToCreate["password"];
@@ -73,10 +91,19 @@ module.exports = {
         return Account.register(new Account({...accountToCreate, passwd: true}), password);
     },
 
-    deleteAccount: (root, {input}, context) => Account.findOneAndDelete({username: input.username}),
+    deleteAccount: async (root, {input}, context) =>
+    {
+        if(!await UserAuth(context.cookies.token))
+            throw "you must be connected";
+
+        return Account.findOneAndDelete({username: input.username});
+    },
 
     modifyAccount: async (root, {input}, context) =>
     {
+        if(!await UserAuth(context.cookies.token))
+            throw "you must be connected";
+
         const userToModify = inputToObj(input);
 
         if(!userToModify["username"])
@@ -144,4 +171,14 @@ function inputToObj(input)
     }
 
     return obj;
+}
+
+async function UserAuth(token)
+{
+    if(!token)
+        return false;
+
+    const user = await Account.where({token: token}).findOne()
+
+    return !!user;
 }
