@@ -3,6 +3,7 @@ const passport = require('passport');
 const announces = require("../models/announce");
 const {body, validationResult} = require("express-validator");
 const fileupload = require("express-fileupload");
+const buffer = require("buffer");
 
 const magicNumber = {
     jpg: 'ffd8ffe0',
@@ -54,7 +55,7 @@ router.post('/add',
                 if (bitmap.toString('hex', 0, 4) === magicNumber.png ||
                     bitmap.toString('hex', 0, 4) === magicNumber.jpg) {
                     //encoding to base64
-                    let base64Image = new Buffer(bitmap).toString('base64');
+                    let base64Image = Buffer.alloc(bitmap.length).fill(bitmap).toString('base64');
                     images.push({data: base64Image});
                 } else {
                     errors.errors.push({msg: "Invalid Image (" + filesToParse[it].name + ")", param: "Image"});
@@ -240,7 +241,7 @@ router.post('/:id/edit',
                 if (bitmap.toString('hex', 0, 4) === magicNumber.png ||
                     bitmap.toString('hex', 0, 4) === magicNumber.jpg) {
                     //encoding to base64
-                    let base64Image = new Buffer(bitmap).toString('base64');
+                    let base64Image = Buffer.alloc(bitmap.length).fill(bitmap).toString('base64');
                     images.push({data: base64Image});
                 } else {
                     errors.errors.push({msg: "Invalid Image (" + filesToParse[it].name + ")", param: "Image"});
