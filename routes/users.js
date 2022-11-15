@@ -2,6 +2,7 @@ const express = require('express');
 const Account = require("../models/account");
 const passport = require("passport");
 const Uuid = require("uuid");
+const {body} = require("express-validator");
 const router = express.Router();
 
 router.get('/modifyUser', function(req, res) {
@@ -36,6 +37,31 @@ router.post('/modifyUser', async function(req, res) {
             }
 
             res.render('users/modifyUser', { user: account, success: true });
+          });
+        });
+      });
+    }
+    else if(req.body.password && !account.passwd)
+    {
+      Account.deleteOne({username: account.username}, {}, () =>
+      {
+        Account.register(new Account({
+          passwd: true,
+          username: account.username,
+          type: account.type,
+          token: account.token
+        }), req.body.password, function(err, account){
+          passport.authenticate('local')(req, res, function () {
+            req.session.save(function (err) {
+              if (err) {
+                return next(err);
+              }
+
+              if(account.token)
+                res.cookie("token", account.token);
+
+              res.render('users/modifyUser', { user: account, success: true });
+            });
           });
         });
       });
@@ -97,7 +123,7 @@ router.get('/register', function(req, res) {
 
 router.post('/register', function(req, res, next) {
   const token = Uuid.v4();
-  Account.register(new Account({ username : req.body.username, token: token, type : (req.body.type === 'true')}), req.body.password, function(err, account) {
+  Account.register(new Account({ passwd: true, username : req.body.username, token: token, type : (req.body.type === 'true')}), req.body.password, function(err, account) {
     if (err) {
       return res.render('users/register', { error : err.message });
     }
@@ -113,6 +139,42 @@ router.post('/register', function(req, res, next) {
       });
     });
   });
+});
+
+router.get('/oauth', passport.authenticate('oauth', {scope: [ 'email', 'profile' ]}));
+
+router.get('/oauth/callback',
+  passport.authenticate('oauth', {failureRedirect: '/login'}),
+  function(req, res)
+  {
+    res.redirect('/');
+  }
+);
+
+router.post('/token',
+    body("username").trim().isString(),
+    body("password").trim().isString(),
+    function(req, res)
+{
+  passport.authenticate('local', {}, (r, user, message) => {
+
+    if(message)
+    {
+      res.json('failed')
+    }
+    else
+    {
+      if(!user.token)
+      {
+        user.token = Uuid.v4();
+        user.save();
+      }
+
+      res.json({
+        token: user.token
+      });
+    }
+  })(req, res);
 });
 
 module.exports = router;

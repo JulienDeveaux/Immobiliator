@@ -6,7 +6,8 @@ const typedef = {
     username: String,
     password: String,
     type: Boolean,   // true utilisateur, false agent immobilier
-    token: String
+    token: String,
+    passwd: Boolean
 };
 
 const Account = new Schema(typedef);

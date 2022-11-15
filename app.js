@@ -9,7 +9,9 @@ const passport = require('passport');
 const auth = require("./middleware/auth")
 const LocalStrategy = require('passport-local').Strategy;
 const Uuid = require('uuid');
-const GraphQL = require('express-graphql')
+const GraphQL = require('express-graphql');
+const Oauth = require('passport-oauth2').Strategy;
+const GoogleStrategy = require( 'passport-google-oauth2' ).Strategy;
 
 
 const indexRouter = require('./routes/index');
@@ -71,9 +73,37 @@ app.use('/graphql', GraphQL.graphqlHTTP({
 
 // passport config
 const Account = require('./models/account');
-passport.use(new LocalStrategy(Account.authenticate()));
+passport.use("local", new LocalStrategy(Account.authenticate()));
 passport.serializeUser(Account.serializeUser());
 passport.deserializeUser(Account.deserializeUser());
+
+passport.use("oauth", new GoogleStrategy({
+  clientID: '562698289154-j55jdbaduc698q6l8laan09qp15ud4hr.apps.googleusercontent.com',
+  clientSecret: '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',
+  callbackURL: "http://localhost:3000/users/oauth/callback",
+  passReqToCallback: true
+}, async function(req, accessToken, refreshToken, profile, cb)
+{
+  let account = await Account.findOne({username: profile.email});
+
+  if(!account)
+  {
+    account = await Account.create({
+      username: profile.email,
+      type: false,
+      token: Uuid.v4(),
+      passwd: false
+    });
+  }
+
+  if(!account.token)
+  {
+    account.token = Uuid.v4();
+    await account.save();
+  }
+
+  cb(undefined, account);
+}));
 
 // mongoose
 let db = undefined;
