@@ -1,6 +1,5 @@
 const Announces = require("../models/announce");
 const Account = require("../models/account");
-const Hash = require("password-hash");
 const Uuid = require("uuid");
 
 module.exports = {
