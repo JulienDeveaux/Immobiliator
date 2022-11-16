@@ -1,6 +1,7 @@
 const request = require('supertest');
 const app = require('../app');
 const accounts = require('../models/account');
+const Uuid = require("uuid");
 
 // purge users in db for test
 beforeAll(async () => await accounts.deleteMany({}));
@@ -138,12 +139,58 @@ describe('Users tests', function() {
         .set('Cookie', `token=${account.token};`)
         .expect(302);
 
+
     const newAccount = await accounts.findOne({});
     expect(newAccount.token).toBe("");
   });
 
-  it('test oauth', async () =>
+  it('test oauth', (done) =>
   {
+    server.get('/users/oauth')
+        .expect(302)
+        .expect('Location', `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fusers%2Foauth%2Fcallback&scope=email%20profile&client_id=562698289154-j55jdbaduc698q6l8laan09qp15ud4hr.apps.googleusercontent.com`, done);
+  });
 
+  it('test get token api', (done) =>
+  {
+    server.post('/users/token')
+        .send({
+          username: 'testModify',
+          password: 'test2'
+        })
+        .expect(/token/, done);
+  });
+
+  it('test failed to get token api', (done) =>
+  {
+    server.post('/users/token')
+        .send({
+          username: 'testModify',
+          password: 'test'
+        })
+        .expect(/failed/, done);
+  });
+
+  it('test oauth callback with error obviously', (done) =>
+  {
+    server.get('/users/oauth/callback').expect(302, done);
+  });
+
+  it('test add password of user created with oauth', async () =>
+  {
+    const account = await accounts.create(new accounts({
+      username: "test@gmail.com",
+      type: true,
+      passwd: false,
+      token: Uuid.v4()
+    }));
+
+    await server.post('/users/modifyUser')
+        .set('Cookie', `token=${account.token};`)
+        .send({
+          username: "test@gmail.com",
+          password: 'testOauth1'
+        })
+        .expect(/Enregistrement effectué/);
   });
 }); 
