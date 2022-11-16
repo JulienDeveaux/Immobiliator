@@ -267,3 +267,124 @@ describe('Q&A graphql tests', function () {
         });
     });
 });
+
+describe('Account manipulation with graphql', function () {
+    it('Create an account with graphql', async () => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
+            const query = {
+                mutation: {
+                    createAccount: {
+                        __args: {
+                            input: {
+                                username: "test username",
+                                password: "test password",
+                                type: true
+                            }
+                        },
+                        username: true
+                    }
+                }
+            };
+            await request(app)
+                .post('/graphql')
+                .set('Content-Type', 'application/json')
+                .send(getQuery(query))
+                .set('Cookie', `token=${user.token};`);
+        });
+        const query = {
+            mutation: {
+                user_connection: {
+                    __args: {
+                        identifier: {
+                            id: "test username",
+                            mdp: "test password"
+                        }
+                    },
+                    token: true
+                }
+            }
+        };
+        const response = await request(app)
+            .post('/graphql')
+            .set('Content-Type', 'application/json')
+            .send(getQuery(query));
+        accounts.find({}, async (err, user) => {
+            const token = response.text.replace("{\"data\":{\"user_connection\":{\"token\":\"", "").replace("\"}}}", "")
+            expect(user[2].username).toBe('test username');
+            expect(user[2].token).toBe(token)
+        });
+    });
+
+    it('Modify an account with graphql', async () => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
+            const query = {
+                mutation: {
+                    modifyAccount: {
+                        __args: {
+                            input: {
+                                username: "test username",
+                                newUsername: "new test username",
+                                oldPassword: "test password",
+                                newPassword: "new test password",
+                                type: false
+                            }
+                        },
+                        username: true
+                    }
+                }
+            };
+            await request(app)
+                .post('/graphql')
+                .set('Content-Type', 'application/json')
+                .send(getQuery(query))
+                .set('Cookie', `token=${user.token};`);
+        });
+        const query = {
+            mutation: {
+                user_connection: {
+                    __args: {
+                        identifier: {
+                            id: "new test username",
+                            mdp: "new test password"
+                        }
+                    },
+                    token: true
+                }
+            }
+        };
+        const response = await request(app)
+            .post('/graphql')
+            .set('Content-Type', 'application/json')
+            .send(getQuery(query));
+        accounts.find({}, async (err, user) => {
+            const token = response.text.replace("{\"data\":{\"user_connection\":{\"token\":\"", "").replace("\"}}}", "")
+            expect(user[2].username).toBe('new test username');
+            expect(user[2].token).toBe(token)
+        });
+    });
+
+    it('Delete an account with graphql', async () => {
+        await accounts.findOne({'username': 'agent'}).then(async user => {
+            const query = {
+                mutation: {
+                    deleteAccount: {
+                        __args: {
+                            input: {
+                                username: "new test username"
+                            }
+                        },
+                        username: true
+                    }
+                }
+            };
+            await request(app)
+                .post('/graphql')
+                .set('Content-Type', 'application/json')
+                .send(getQuery(query))
+                .set('Cookie', `token=${user.token};`);
+        });
+        accounts.find({}, (err, user) => {
+            expect(user.length).toBe(2);
+        });
+    });
+});
