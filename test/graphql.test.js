@@ -233,7 +233,6 @@ describe('Q&A graphql tests', function () {
                 .set('Cookie', `token=${user.token};`);
         });
         announce.findOne({}, (err, testAnnounce) => {
-            console.log(testAnnounce);
             expect(testAnnounce.questions[0].text).toBe('my test question');
             expect(testAnnounce.questions[0].username).toBe('by me');
         });
@@ -263,7 +262,6 @@ describe('Q&A graphql tests', function () {
                 .set('Cookie', `token=${user.token};`);
         });
         announce.findOne({}, (err, testAnnounce) => {
-            console.log(testAnnounce);
             expect(testAnnounce.questions[0].answers[0].text).toBe('my test answer');
             expect(testAnnounce.questions[0].answers[0].username).toBe('by me again');
         });
