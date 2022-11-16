@@ -3,6 +3,32 @@ const Account = require("../models/account");
 const Uuid = require("uuid");
 
 module.exports = {
+        /*
+        mutation {
+            createAnnounce(input: {
+                title: "the totally legit title"
+                type: true
+                isPublish: true
+                statusType: false
+                availability: 1666713147028
+                description: "My totally legit description"
+		        price: 150
+                }) {
+            title
+            }
+        }
+        */
+
+        /*
+        query {
+            announces {
+                title
+                questions {
+                    text
+                }
+            }
+        }
+        */
     createAnnounce: async (root, {input}, context) => {
         if(!await UserAuth(context.cookies.token))
             throw "you must be connected";
@@ -24,7 +50,7 @@ module.exports = {
         if(!await UserAuth(context.cookies.token))
             throw "you must be connected";
 
-        const announceToModify = inputToObj(input);
+        const announceToModify = inputToObj(input.modify);
 
         Object.keys(announceToModify).forEach(key => {
             if (announceToModify[key] === undefined) {
