@@ -793,3 +793,129 @@ describe('try to break tests with graphql', function () {
         });
     });
 });
+
+describe('queries tests', () =>
+{
+    it('get all announces with filters', async () =>
+    {
+        const user = await accounts.findOne({'username': 'agent'});
+
+        const query = {
+            query: {
+                announces: {
+                    __args: {
+                        filters: {
+                            keys: ['title', 'statusType', 'availability', 'test'],
+                            values: ["qui n'existe pas", '0', '2022-12-28', '{key: \'value\'}']
+                        }
+                    },
+                    title: true
+                }
+            }
+        };
+
+        await makeRequest(app, query, user.token)
+            .expect(/announces/);
+    });
+
+    it('get all accounts with filters', async () =>
+    {
+        const user = await accounts.findOne({'username': 'agent'});
+
+        const query = {
+            query: {
+                accounts: {
+                    __args: {
+                        filters: {
+                            keys: ['username', 'type'],
+                            values: ["agent", 'false']
+                        }
+                    },
+                    username: true
+                }
+            }
+        };
+
+        await makeRequest(app, query, user.token)
+            .expect(/agent/);
+    });
+
+    it('get all users with orderBy', async () =>
+    {
+        const user = await accounts.findOne({'username': 'agent'});
+
+        const query = {
+            query: {
+                accounts: {
+                    __args: {
+                        orderBy: {
+                            field: 'username',
+                            desc: true
+                        }
+                    },
+                    username: true
+                }
+            }
+        };
+
+        await makeRequest(app, query, user.token)
+            .expect(/"accounts":\[\{"username":"classicUser"},\{"username":"agent"}]/);
+    });
+
+    it('try to get announces without token', async () =>
+    {
+        const query = {
+            query: {
+                announces: {
+                    title: true
+                }
+            }
+        };
+
+        await makeRequest(app, query, '')
+            .expect(/you must be connected/);
+    });
+
+    it('try to get accounts without token', async () =>
+    {
+        const query = {
+            query: {
+                accounts: {
+                    username: true
+                }
+            }
+        };
+
+        await makeRequest(app, query, '')
+            .expect(/you must be connected/);
+    });
+
+    it('error in filters for announces', async () =>
+    {
+        const user = await accounts.findOne({'username': 'agent'});
+
+        const query = {
+            query: {
+                announces: {
+                    __args: {
+                        filters: {
+                            keys: ['title', 'statusType', 'availability'],
+                            values: ["qui n'existe pas", '0']
+                        }
+                    },
+                    title: true
+                }
+            }
+        };
+
+        await makeRequest(app, query, user.token)
+            .expect(/keys ans values as not same length/);
+    });
+});
+
+function makeRequest(app, query, token)
+{
+    return request(app).post('/graphql').set('Content-Type', 'application/json')
+    .send(getQuery(query))
+    .set('Cookie', `token=${token};`)
+}
