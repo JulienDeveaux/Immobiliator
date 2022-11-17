@@ -792,12 +792,142 @@ describe('try to break tests with graphql', function () {
             });
         });
     });
+
+    it('try to add an answer without token with graphql', async () => {
+        const query = {
+            mutation: {
+                createAnswer: {
+                    __args: {
+                        input: {
+                            announceTitle: "test title",
+                            questionText: "my test question",
+                            text: "my test answer",
+                            username: "by me again"
+                        }
+                    },
+                    title: true
+                }
+            }
+        };
+        const response = await request(app)
+            .post('/graphql')
+            .set('Content-Type', 'application/json')
+            .send(getQuery(query));
+        expect(response.text).toBe("{\"errors\":[{\"message\":\"Unexpected error value: \\\"you must be connected\\\"\",\"locations\":[{\"line\":1,\"column\":12}],\"path\":[\"createAnswer\"]}],\"data\":{\"createAnswer\":null}}");
+    });
+
+    it('try to create a question without token with graphql', async () => {
+        const query = {
+            mutation: {
+                createQuestion: {
+                    __args: {
+                        input: {
+                            username: "test username",
+                            announceTitle: "test title",
+                            text: "my test question"
+                        }
+                    },
+                    title: true
+                }
+            }
+        }
+        const response = await request(app)
+            .post('/graphql')
+            .set('Content-Type', 'application/json')
+            .send(getQuery(query));
+        expect(response.text).toBe("{\"errors\":[{\"message\":\"Unexpected error value: \\\"you must be connected\\\"\",\"locations\":[{\"line\":1,\"column\":12}],\"path\":[\"createQuestion\"]}],\"data\":{\"createQuestion\":null}}");
+    });
+
+    it('try to delete an announce without token with graphql', async () => {
+        const query = {
+            mutation: {
+                deleteAnnounce: {
+                    __args: {
+                        input: {
+                            title: "test title"
+                        }
+                    },
+                    title: true
+                }
+            }
+        }
+        const response = await request(app)
+            .post('/graphql')
+            .set('Content-Type', 'application/json')
+            .send(getQuery(query));
+        expect(response.text).toBe("{\"errors\":[{\"message\":\"Unexpected error value: \\\"you must be connected\\\"\",\"locations\":[{\"line\":1,\"column\":12}],\"path\":[\"deleteAnnounce\"]}],\"data\":{\"deleteAnnounce\":null}}");
+    });
+
+    it('try to modify an announce without token with graphql', async () => {
+        const query = {
+                mutation: {
+                    modifyAnnounce: {
+                        __args: {
+                            input: {
+                                title: "test title",
+                                modify: {
+                                    title: "test title",
+                                    type: true,
+                                    isPublish: true,
+                                    statusType: false,
+                                    availability: "2022-11-18",
+                                    description: "test description modified",
+                                    price: 123456
+                                }
+                            }
+                        },
+                        title: true,
+                        type: true,
+                        isPublish: true,
+                        statusType: true,
+                        availability: true,
+                        description: true,
+                        price: true
+                    }
+                }
+            };
+        const response = await request(app)
+            .post('/graphql')
+            .set('Content-Type', 'application/json')
+            .send(getQuery(query));
+        expect(response.text).toBe("{\"errors\":[{\"message\":\"Unexpected error value: \\\"you must be connected\\\"\",\"locations\":[{\"line\":1,\"column\":12}],\"path\":[\"modifyAnnounce\"]}],\"data\":{\"modifyAnnounce\":null}}");
+    });
+
+    it('try to create an announce without token with graphql', async () => {
+        const query = {
+            mutation: {
+                createAnnounce: {
+                    __args: {
+                        input: {
+                            title: "test title",
+                            type: true,
+                            isPublish: true,
+                            statusType: false,
+                            availability: "2022-11-18",
+                            description: "test description",
+                            price: 123456
+                        }
+                    },
+                    title: true,
+                    type: true,
+                    isPublish: true,
+                    statusType: true,
+                    availability: true,
+                    description: true,
+                    price: true
+                }
+            }
+        }
+        const response = await request(app)
+            .post('/graphql')
+            .set('Content-Type', 'application/json')
+            .send(getQuery(query));
+        expect(response.text).toBe("{\"errors\":[{\"message\":\"Unexpected error value: \\\"you must be connected\\\"\",\"locations\":[{\"line\":1,\"column\":12}],\"path\":[\"createAnnounce\"]}],\"data\":{\"createAnnounce\":null}}");
+    });
 });
 
-describe('queries tests', () =>
-{
-    it('get all announces with filters', async () =>
-    {
+describe('queries tests', () => {
+    it('get all announces with filters', async () => {
         const user = await accounts.findOne({'username': 'agent'});
 
         const query = {
@@ -818,8 +948,7 @@ describe('queries tests', () =>
             .expect(/announces/);
     });
 
-    it('get all accounts with filters', async () =>
-    {
+    it('get all accounts with filters', async () => {
         const user = await accounts.findOne({'username': 'agent'});
 
         const query = {
@@ -840,8 +969,7 @@ describe('queries tests', () =>
             .expect(/agent/);
     });
 
-    it('get all users with orderBy', async () =>
-    {
+    it('get all users with orderBy', async () => {
         const user = await accounts.findOne({'username': 'agent'});
 
         const query = {
@@ -862,8 +990,7 @@ describe('queries tests', () =>
             .expect(/"accounts":\[\{"username":"classicUser"},\{"username":"agent"}]/);
     });
 
-    it('try to get announces without token', async () =>
-    {
+    it('try to get announces without token', async () => {
         const query = {
             query: {
                 announces: {
@@ -876,8 +1003,7 @@ describe('queries tests', () =>
             .expect(/you must be connected/);
     });
 
-    it('try to get accounts without token', async () =>
-    {
+    it('try to get accounts without token', async () => {
         const query = {
             query: {
                 accounts: {
@@ -890,8 +1016,7 @@ describe('queries tests', () =>
             .expect(/you must be connected/);
     });
 
-    it('error in filters for announces', async () =>
-    {
+    it('error in filters for announces', async () => {
         const user = await accounts.findOne({'username': 'agent'});
 
         const query = {
@@ -913,9 +1038,8 @@ describe('queries tests', () =>
     });
 });
 
-function makeRequest(app, query, token)
-{
+function makeRequest(app, query, token) {
     return request(app).post('/graphql').set('Content-Type', 'application/json')
-    .send(getQuery(query))
-    .set('Cookie', `token=${token};`)
+        .send(getQuery(query))
+        .set('Cookie', `token=${token};`)
 }
