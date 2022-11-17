@@ -9,12 +9,6 @@ module.exports = {
 
         const announceToCreate = inputToObj(input);
 
-        Object.keys(announceToCreate).forEach(key => {
-            if (announceToCreate[key] === undefined) {
-                delete announceToCreate[key];
-            }
-        });
-
         const announce = new Announces(announceToCreate);
         await announce.save();
         return announce;
@@ -25,12 +19,6 @@ module.exports = {
             throw "you must be connected";
 
         const announceToModify = inputToObj(input.modify);
-
-        Object.keys(announceToModify).forEach(key => {
-            if (announceToModify[key] === undefined) {
-                delete announceToModify[key];
-            }
-        });
 
         return Announces.findOneAndUpdate({title: input.title}, announceToModify, {new: true});
     },
